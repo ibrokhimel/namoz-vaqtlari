@@ -4,8 +4,7 @@ import { dayPhase, fmtDayUz, getDayState, hhmm } from '../core/day.js';
 import { useBurnInShift, useNow, useStageScale } from './hooks.js';
 import TopBar from './TopBar.jsx';
 import Hero from './Hero.jsx';
-import TodayRow from './TodayRow.jsx';
-import TomorrowLine from './TomorrowLine.jsx';
+import TodayTable from './TodayTable.jsx';
 import SettingsPanel from './SettingsPanel.jsx';
 import Sky from './sky/Sky.jsx';
 import { useWeather } from './useWeather.js';
@@ -46,8 +45,7 @@ export default function App() {
         <TopBar now={now} settings={settings} weather={weather} phase={phase} />
         <main className="panel-days" id="main">
           <Hero now={now} st={st} settings={settings} />
-          <TodayRow now={now} st={st} settings={settings} />
-          <TomorrowLine st={st} settings={settings} city={city} />
+          <TodayTable now={now} st={st} settings={settings} city={city} />
         </main>
         <footer className="footer">
           <div>

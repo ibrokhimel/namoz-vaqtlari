@@ -4,22 +4,19 @@ import { WEATHER_UZ } from '../core/weather.js';
 
 const BISMILLAH = 'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيم';
 
-// Mosque identity (left); weather and today's dates (right). The wall
+// Bismillah (left), mosque name (centre), weather and dates (right). The wall
 // clock lives in the centre of the dial.
 export default function TopBar({ now, settings, weather, phase }) {
   const h = toHijri(now, settings.hijriAdj || 0);
   return (
     <header className="topbar">
-      <div className="mosque-block">
-        <div className="mosque-arabic" id="mosqueArabic" lang="ar" dir="rtl">{settings.mosqueArabic || BISMILLAH}</div>
-        <div className="mosque-name" id="mosqueName">{settings.mosqueName || 'Namoz Vaqtlari'}</div>
-      </div>
+      <div className="mosque-arabic" id="mosqueArabic" lang="ar" dir="rtl">{settings.mosqueArabic || BISMILLAH}</div>
+      <div className="mosque-name" id="mosqueName">{settings.mosqueName || 'Namoz Vaqtlari'}</div>
       <div className="topbar-right">
         {weather && (
-          <div className="weather" id="weather">
+          <div className="weather" id="weather" aria-label={WEATHER_UZ[weather.kind]} title={WEATHER_UZ[weather.kind]}>
             <WeatherIcon kind={weather.kind} night={phase !== 'day'} />
             {Number.isFinite(weather.temp) && <span className="w-temp">{weather.temp}°</span>}
-            <span className="w-label">{WEATHER_UZ[weather.kind]}</span>
           </div>
         )}
         <div className="live-date">
