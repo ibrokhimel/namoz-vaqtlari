@@ -109,6 +109,20 @@ function tickClock(){
   if(mnEl) mnEl.textContent=h.mName+'\n'+h.y;
 }
 
+// ── SPECIAL DAYS ─────────────────────────────
+// Friday: Peshin is prayed as Juma. Ramazon (Hijri month 9): Bomdod marks
+// the end of saharlik and Shom is iftorlik.
+const JUMA={nameUz:'Juma', nameAr:'الجمعة'};
+const RAMAZON_NOTE={fajr:'Saharlik tugaydi', maghrib:'Iftorlik'};
+const RAMAZON_HERO={fajr:'Saharlik tugashiga', maghrib:'Iftorgacha'};
+
+function forDay(p, date){
+  return (p.key==='dhuhr' && date.getDay()===5) ? {...p, ...JUMA} : p;
+}
+function isRamazon(date, settings){
+  return toHijri(date, settings.hijriAdj||0).m===9;
+}
+
 // Where are we in the day? Works on real Date objects, not decimal hours.
 //  current: prayer whose time is running now (null between sunrise and
 //           Peshin, and before Bomdod, when no prayer of *today* is current)
@@ -119,7 +133,7 @@ function getDayState(now, settings, city){
   const yes=new Date(now.getFullYear(),now.getMonth(),now.getDate()-1);
   const T =getTimesForDate(now,settings,city);
   const at=(t,ref)=>decimalToDate(t,ref);
-  const today=PRAYERS_TV.map(p=>({...p, date:at(T[p.key],now)})).filter(p=>p.date);
+  const today=PRAYERS_TV.map(p=>({...forDay(p,now), date:at(T[p.key],now)})).filter(p=>p.date);
   const sunrise=at(T.sunrise,now);
 
   let next=today.find(p=>p.date>now);
@@ -128,7 +142,7 @@ function getDayState(now, settings, city){
     // calculation returned NaN for it)
     const TT=getTimesForDate(tom,settings,city);
     const p=PRAYERS_TV.find(p=>Number.isFinite(TT[p.key]))||PRAYERS_TV[0];
-    next={...p, date:at(TT[p.key],tom), tomorrow:true};
+    next={...forDay(p,tom), date:at(TT[p.key],tom), tomorrow:true};
   }
   const started=today.filter(p=>p.date<=now);
   let current=started.length?started[started.length-1]:null;
@@ -158,7 +172,10 @@ function renderTV(){
   document.getElementById('asrFooter').textContent    =`Asr: ${(ASR_METHODS[settings.asrMethod]||ASR_METHODS.Hanafi).name}`;
 
   // Hero
-  document.getElementById('heroLabel').textContent = st.next.tomorrow ? 'Keyingi namoz · ertaga' : 'Keyingi namoz';
+  const ramazon=isRamazon(now,settings);
+  const nextDay=st.next.tomorrow?st.tom:now;
+  const heroLabel=(isRamazon(nextDay,settings)&&RAMAZON_HERO[st.next.key])||'Keyingi namoz';
+  document.getElementById('heroLabel').textContent = st.next.tomorrow ? `${heroLabel} · ertaga` : heroLabel;
   document.getElementById('heroName').textContent  = st.next.nameUz;
   document.getElementById('heroAr').textContent    = st.next.nameAr;
   document.getElementById('heroTime').textContent  = st.next.date
@@ -170,13 +187,14 @@ function renderTV(){
   row.innerHTML='';
   const cols=[PRAYERS_TV[0], {key:'sunrise', nameUz:'Quyosh', nameAr:'الشروق', sun:true}, ...PRAYERS_TV.slice(1)];
   cols.forEach(p=>{
+    p=forDay(p,now);
     const d=decimalToDate(st.T[p.key],now);
     const isCur =!p.sun && st.current && st.current.key===p.key;
     const isNext=!p.sun && !st.next.tomorrow && st.next.key===p.key;
     const isPast=!isCur && !isNext && d && d<=now;
     const col=document.createElement('div');
     col.className=`t-col${p.sun?' sun':''}${isCur?' current':''}${isNext?' next':''}${isPast?' passed':''}`;
-    const state=isCur?'Hozir':isNext?'Keyingi':'';
+    const state=(ramazon&&RAMAZON_NOTE[p.key])||(isCur?'Hozir':isNext?'Keyingi':'');
     col.innerHTML=`
       <div class="t-head"><span class="t-uz">${p.nameUz}</span>${p.sun?'':`<span class="t-ar" lang="ar">${p.nameAr}</span>`}</div>
       <div class="t-time">${decimalToHHMM(st.T[p.key])}</div>
@@ -186,7 +204,7 @@ function renderTV(){
 
   // Tomorrow: one line
   const TT=getTimesForDate(st.tom,settings,city);
-  const items=[['Bomdod','fajr'],['Quyosh','sunrise'],['Peshin','dhuhr'],['Asr','asr'],['Shom','maghrib'],['Xufton','isha']]
+  const items=[['Bomdod','fajr'],['Quyosh','sunrise'],[st.tom.getDay()===5?'Juma':'Peshin','dhuhr'],['Asr','asr'],['Shom','maghrib'],['Xufton','isha']]
     .map(([n,k])=>`<span class="tl-item">${n}<b>${decimalToHHMM(TT[k])}</b></span>`).join('');
   document.getElementById('tomorrowLine').innerHTML=`<span class="tl-day">Ertaga, ${fmtDayUz(st.tom).split(', ')[1]}</span>${items}`;
 
