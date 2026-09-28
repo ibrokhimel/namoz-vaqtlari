@@ -52,9 +52,12 @@
 }
 :root {
   /* TYPE ─ one role per family */
-  --f-ui:  'Tajawal', system-ui, sans-serif;          /* Uzbek text, labels */
-  --f-num: 'Amiri', Georgia, serif;                    /* times, clock, countdown */
-  --f-ar:  'Scheherazade New', 'Amiri', serif;         /* Arabic */
+  /* General Sans comes from Fontshare (its license forbids hosting the files
+     in this public repo); offline, Tajawal takes over. Tajawal also supplies
+     the Uzbek ʻ ʼ that General Sans lacks. */
+  --f-ui:  'General Sans', 'Tajawal', system-ui, sans-serif;   /* Uzbek text, labels */
+  --f-num: 'General Sans', 'Tajawal', system-ui, sans-serif;   /* times, clock, countdown */
+  --f-ar:  'Scheherazade New', 'Amiri', serif;                 /* Arabic */
 
   /* TYPE SCALE (stage px; 24px is the floor for anything on a TV) */
   --t-caption:  1.5rem;   /* 24  footer, meta          */
@@ -248,14 +251,13 @@ html,body{
   *,*::before,*::after{animation:none!important;transition:none!important}
 }
 
-/* React Bits: BlurText letters need to be boxes to move; Counter rolls
-   inside a fixed-height window */
+/* React Bits BlurText: letters need to be boxes to move */
 .blur-text{display:inline-flex!important;margin:0}
 .blur-text > span{display:inline-block;will-change:transform,filter,opacity}
-.hero-countdown b .counter-counter,.dial-clock .counter-counter{line-height:1}
-/* Counter boxes its digits (height = font size, glyphs centred), so it has
-   no text baseline: sit the box on the baseline by hand */
-.hero-countdown b .counter-container{vertical-align:-0.16em}
+/* digit roll: each digit keeps its natural width */
+.roll{display:inline-flex}
+.roll-slot{position:relative;display:inline-block}
+.roll-digit{display:inline-block}
 .dial-clock{display:flex;align-items:center;justify-content:center}
 .dial-clock .colon{padding:0 .04em;transform:translateY(-.06em)}
 

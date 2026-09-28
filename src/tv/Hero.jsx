@@ -55,7 +55,7 @@ export default function Hero({ now, st, settings }) {
         <Dial now={now} st={st} />
         <div className="dial-center">
           <div className="dial-clock" id="liveClock" aria-label={hhmm(now)}>
-            <RollingNumber value={now.getHours()} digits={2} fontSize={80} /><span className="colon">:</span><RollingNumber value={now.getMinutes()} digits={2} fontSize={80} />
+            <RollingNumber value={now.getHours()} digits={2} /><span className="colon">:</span><RollingNumber value={now.getMinutes()} digits={2} />
           </div>
           <div className="dial-period">{periodName}</div>
         </div>
@@ -75,7 +75,7 @@ function Countdown({ now, st, mode, until, ramazon }) {
     body = 'Vaqtni hisoblab boʻlmadi';
   } else {
     const parts = countdownParts(until - now).map(([n, unit], i) => (
-      <span key={unit}>{i > 0 && ' '}<b><RollingNumber value={Number(n)} digits={unit === 'soniya' ? 2 : String(Number(n)).length} fontSize={56} /></b> {unit}</span>
+      <span key={unit}>{i > 0 && ' '}<b><RollingNumber value={Number(n)} digits={unit === 'soniya' ? 2 : String(Number(n)).length} /></b> {unit}</span>
     ));
     // current: how long this prayer's time lasts; next: time until it
     body = mode === 'current'

@@ -1,20 +1,29 @@
-// Thin wrappers that fit the React Bits components to the TV: palette,
-// type, and a static fallback when the TV asks for reduced motion.
-import { useReducedMotion } from 'motion/react';
-import Counter from './reactbits/Counter.jsx';
+// Motion helpers for the TV (React Bits BlurText + a digit roll), each with
+// a static fallback when the TV asks for reduced motion.
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import BlurText from './reactbits/BlurText.jsx';
 
-// Digits that roll to their new value (React Bits Counter).
-//  digits: fixed width, e.g. 2 renders 5 as "05"
-export function RollingNumber({ value, digits = String(value).length, fontSize, className }) {
+// Digits that roll to a new value, each at its natural width: General Sans
+// has no tabular figures, so fixed-width digit boxes (a counter) would leave
+// gaps around narrow digits like 1. The old digit slips up and out, the new
+// one rises in.  digits: e.g. 2 renders 5 as "05"
+export function RollingNumber({ value, digits = String(value).length, className }) {
   const reduce = useReducedMotion();
   const text = String(value).padStart(digits, '0');
   if (reduce) return <span className={className}>{text}</span>;
-  const places = Array.from({ length: digits }, (_, i) => 10 ** (digits - i - 1));
   return (
-    <span className={className} aria-label={text}>
-      <Counter value={Number(value)} places={places} fontSize={fontSize} padding={0} gap={0}
-        horizontalPadding={0} borderRadius={0} gradientHeight={0} textColor="inherit" fontWeight="inherit" />
+    <span className={`roll ${className || ''}`} aria-label={text}>
+      {[...text].map((ch, i) => (
+        <span className="roll-slot" key={i}>
+          <AnimatePresence mode="popLayout" initial={false}>
+            <motion.span key={ch} className="roll-digit"
+              initial={{ y: '0.5em', opacity: 0, filter: 'blur(4px)' }}
+              animate={{ y: 0, opacity: 1, filter: 'blur(0px)' }}
+              exit={{ y: '-0.5em', opacity: 0, filter: 'blur(4px)' }}
+              transition={{ duration: 0.45, ease: [0.25, 1, 0.5, 1] }}>{ch}</motion.span>
+          </AnimatePresence>
+        </span>
+      ))}
     </span>
   );
 }
