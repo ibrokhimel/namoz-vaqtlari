@@ -10,7 +10,8 @@ import SettingsPanel from './SettingsPanel.jsx';
 import Sky from './sky/Sky.jsx';
 import { useWeather } from './useWeather.js';
 import UpdatePrompt from './UpdatePrompt.jsx';
-import { startUpdates, useUpdate } from './update-store.js';
+import UpdateBoot from './UpdateBoot.jsx';
+import { bootedFromUpdate, startUpdates, useUpdate } from './update-store.js';
 
 export default function App() {
   const now = useNow();
@@ -47,7 +48,7 @@ export default function App() {
     <MotionConfig reducedMotion="user">
     <div className="stage" id="stage" style={{ '--s': scale }}>
       <Sky phase={phase} weather={weather} makruh={makruh} scale={scale} />
-      <div className="layout" style={{ transform: shift }}>
+      <div className={`layout${bootedFromUpdate ? ' boot-reveal' : ''}`} style={{ transform: shift }}>
         <TopBar now={now} settings={settings} weather={weather} phase={phase} />
         <main className="panel-days" id="main">
           <Hero now={now} st={st} settings={settings} />
@@ -66,6 +67,7 @@ export default function App() {
       <SettingsPanel settings={settings} onChange={setSettings} now={now} />
       <SimBadge now={now} />
       <UpdatePrompt />
+      <UpdateBoot />
     </div>
     </MotionConfig>
   );

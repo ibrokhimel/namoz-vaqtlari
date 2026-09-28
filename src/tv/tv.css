@@ -332,9 +332,17 @@ html,body{
 .uc-actions{display:flex;gap:var(--sp-4, 16px);margin-top:var(--sp-3, 12px)}
 .uc-key{font-size:var(--t-small);font-weight:600;padding:14px 24px;border-radius:12px;border:2px solid var(--line);color:var(--ink)}
 .uc-key.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-.uc-progress{height:8px;border-radius:4px;background:var(--track);overflow:hidden;margin-top:var(--sp-3, 12px)}
-.uc-progress i{display:block;height:100%;width:40%;background:var(--accent);border-radius:4px;animation:ucSlide 1.4s ease-in-out infinite}
-@keyframes ucSlide{from{transform:translateX(-100%)}to{transform:translateX(250%)}}
+/* update install: fade to black, thin bar, new version rises out of the black */
+.boot{position:absolute;inset:0;z-index:90;background:#000;display:grid;place-items:center;cursor:none}
+.boot-inner{display:flex;flex-direction:column;align-items:center;gap:40px}
+.boot-mark{font-size:var(--t-lead);font-weight:500;letter-spacing:.01em;color:oklch(0.92 0.012 85)}
+.boot-bar{width:360px;height:6px;border-radius:3px;background:oklch(0.28 0.005 85);overflow:hidden}
+.boot-bar i{display:block;height:100%;background:oklch(0.92 0.012 85);border-radius:3px;
+  transform-origin:left;transition:transform .5s cubic-bezier(.25,1,.5,1)}
+.boot-ver{font-size:var(--t-caption);color:oklch(0.62 0.01 85);min-height:1.2em;font-variant-numeric:tabular-nums}
+.layout.boot-reveal{animation:bootReveal 3.2s cubic-bezier(.2,.7,.2,1) .7s both}
+@keyframes bootReveal{from{opacity:0;filter:blur(14px);scale:.965}to{opacity:1;filter:blur(0);scale:1}}
+@media (prefers-reduced-motion:reduce){.layout.boot-reveal{animation:none}}
 .uc-error{font-size:var(--t-caption);color:var(--warn)}
 
 /* Dial hand glides between minutes (compositor-friendly rotation) */
