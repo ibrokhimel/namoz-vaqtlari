@@ -51,7 +51,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           export MSG="$(git log -1 --pretty=%s)"
-          node -e 'console.log(JSON.stringify({version:process.env.SHORT,name:require('./package.json').version,builtAt:process.env.APP_BUILT_AT,sha256:process.env.SHA256,message:process.env.MSG.slice(0,120)},null,2))' > meta.json
+          export NAME="$(node -p "require('./package.json').version")"
+          node -e 'console.log(JSON.stringify({version:process.env.SHORT,name:process.env.NAME,builtAt:process.env.APP_BUILT_AT,sha256:process.env.SHA256,message:process.env.MSG.slice(0,120)},null,2))' > meta.json
           { echo "In-app update bundle for the TV app (installed from inside the app, no APK reinstall)."; echo; echo '```json'; cat meta.json; echo '```'; } > notes.md
           gh release create "web-$SHORT" bundle.zip --title "Web $SHORT" --notes-file notes.md --target "$GITHUB_SHA" --latest
 
