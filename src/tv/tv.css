@@ -118,7 +118,7 @@ html,body{
   justify-self:start;max-width:100%;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
 .mosque-name{
-  font-size:var(--t-lead);font-weight:700;color:var(--ink);line-height:1.1;text-align:center;
+  font-size:var(--t-lead);font-weight:600;color:var(--ink);line-height:1.1;text-align:center;
   max-width:720px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
 .topbar-right{justify-self:end}
@@ -145,15 +145,15 @@ html,body{
 .hero-note{font-size:var(--t-small);font-weight:500;color:var(--warn);line-height:1.1}
 .hero-note:empty{display:none}
 .hero-name{display:flex;align-items:baseline;gap:var(--sp-5);min-width:0}
-.hero-uz{font-size:8rem;font-weight:700;color:var(--ink);line-height:1;letter-spacing:-.01em}
+.hero-uz{font-size:8rem;font-weight:600;color:var(--ink);line-height:1;letter-spacing:-.01em}
 .hero-ar{font-family:var(--f-ar);font-size:4.5rem;color:var(--mark);line-height:1}
 .hero-when{display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--sp-2) var(--sp-5);min-height:6.5rem}
 .hero-time{
-  font-family:var(--f-num);font-size:6.5rem;font-weight:700;
+  font-family:var(--f-num);font-size:6.5rem;font-weight:600;
   color:var(--mark);line-height:1;font-variant-numeric:tabular-nums;
 }
 .hero-countdown{font-size:var(--t-label);font-weight:500;color:var(--ink-2);line-height:1.1}
-.hero-countdown b{font-family:var(--f-num);font-size:3.5rem;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}
+.hero-countdown b{font-family:var(--f-num);font-size:3.5rem;font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums}
 
 /* DIAL ─ a 24-hour clock face, as tall as the screen allows */
 .hero-dial{grid-area:dial;position:relative;align-self:center;justify-self:center;
@@ -163,7 +163,7 @@ html,body{
   position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--sp-2);
   pointer-events:none;
 }
-.dial-clock{font-family:var(--f-num);font-size:5rem;font-weight:700;color:var(--ink);line-height:1;font-variant-numeric:tabular-nums}
+.dial-clock{font-family:var(--f-num);font-size:5rem;font-weight:600;color:var(--ink);line-height:1;font-variant-numeric:tabular-nums}
 .dial-period{font-size:var(--t-small);font-weight:500;color:var(--ink-2);line-height:1}
 
 /* prayer period hues: calm, one per prayer (the old donut's colour-coding,
@@ -186,8 +186,8 @@ html,body{
 #dial .tick.major{stroke:var(--ink-2);stroke-width:3}
 #dial .hour{font:500 24px var(--f-ui);fill:var(--ink-2);text-anchor:middle;dominant-baseline:central}
 #dial .name{font:500 22px var(--f-ui);fill:var(--ink-2);text-anchor:middle;dominant-baseline:central}
-#dial .name.current{font-weight:700;fill:var(--ink)}
-#dial .name.next{font-weight:700;fill:var(--accent)}
+#dial .name.current{font-weight:600;fill:var(--ink)}
+#dial .name.next{font-weight:600;fill:var(--accent)}
 #dial .hand{stroke:var(--ink);stroke-width:5;stroke-linecap:round}
 #dial .hand-tip{fill:var(--ink);stroke:var(--bg);stroke-width:4}
 
@@ -199,10 +199,10 @@ html,body{
 .tt-row{height:60px;border-top:1px solid var(--line-2)}
 .tt-row:last-child{border-bottom:1px solid var(--line-2)}
 .tt-name{display:flex;align-items:baseline;gap:var(--sp-3);min-width:0;white-space:nowrap;overflow:hidden}
-.t-uz{font-size:var(--t-small);font-weight:700;color:var(--ink);line-height:1}
+.t-uz{font-size:var(--t-small);font-weight:600;color:var(--ink);line-height:1}
 .t-ar{font-family:var(--f-ar);font-size:var(--t-caption);color:var(--mark);line-height:1}
-.t-state{font-size:var(--t-caption);font-weight:700;color:var(--ink-2);line-height:1;margin-left:auto}
-.t-time,.t-tom{font-family:var(--f-num);font-weight:700;line-height:1;text-align:right;font-variant-numeric:tabular-nums}
+.t-state{font-size:var(--t-caption);font-weight:600;color:var(--ink-2);line-height:1;margin-left:auto}
+.t-time,.t-tom{font-family:var(--f-num);font-weight:600;line-height:1;text-align:right;font-variant-numeric:tabular-nums}
 .t-time{font-size:3rem;color:var(--ink)}
 .t-tom{font-size:2rem;color:var(--ink-2)}
 .t-tom small{font-family:var(--f-ui);font-size:var(--t-caption);font-weight:500}
@@ -268,7 +268,7 @@ html,body{
   background:var(--warn);color:var(--bg);
   font-size:var(--t-caption);font-weight:500;white-space:nowrap;
 }
-.sim-badge b{font-weight:700;letter-spacing:.04em;margin-right:8px}
+.sim-badge b{font-weight:600;letter-spacing:.04em;margin-right:8px}
 
 /* Generated sky photographs. A phase-specific veil keeps text readable
    while retaining natural cloud texture; all images are bundled offline. */
@@ -304,11 +304,11 @@ html,body{
 .weather{display:flex;align-items:center;gap:var(--sp-3);color:var(--ink)}
 .w-icon{width:48px;height:52px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 .w-icon .fill{fill:currentColor;stroke:none}
-.w-temp{font-family:var(--f-num);font-size:3rem;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.w-temp{font-family:var(--f-num);font-size:3rem;font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
 
 /* ── STATUS BAR version / update ─────────────────────────── */
 .footer .f-version{font-variant-numeric:tabular-nums}
-.footer .f-update{font-weight:700;color:var(--accent)}
+.footer .f-update{font-weight:600;color:var(--accent)}
 
 /* ── UPDATE PROMPT ───────────────────────────────────────── */
 .update-scrim{position:absolute;inset:0;z-index:70;display:grid;place-items:center;
@@ -316,12 +316,12 @@ html,body{
 .update-card{width:880px;padding:48px 56px;border-radius:20px;background:var(--panel);
   border:1px solid var(--line);box-shadow:0 24px 64px color-mix(in oklab, var(--ink) 18%, transparent);
   display:flex;flex-direction:column;gap:var(--sp-4, 16px)}
-.update-card h2{font-size:var(--t-lead);font-weight:700;color:var(--ink);line-height:1.1}
+.update-card h2{font-size:var(--t-lead);font-weight:600;color:var(--ink);line-height:1.1}
 .uc-version{font-size:var(--t-small);color:var(--ink-2)}
 .uc-version b{color:var(--accent)}
 .uc-note{font-size:var(--t-caption);color:var(--ink-2);line-height:1.35}
 .uc-actions{display:flex;gap:var(--sp-4, 16px);margin-top:var(--sp-3, 12px)}
-.uc-key{font-size:var(--t-small);font-weight:700;padding:14px 24px;border-radius:12px;border:2px solid var(--line);color:var(--ink)}
+.uc-key{font-size:var(--t-small);font-weight:600;padding:14px 24px;border-radius:12px;border:2px solid var(--line);color:var(--ink)}
 .uc-key.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .uc-progress{height:8px;border-radius:4px;background:var(--track);overflow:hidden;margin-top:var(--sp-3, 12px)}
 .uc-progress i{display:block;height:100%;width:40%;background:var(--accent);border-radius:4px;animation:ucSlide 1.4s ease-in-out infinite}
