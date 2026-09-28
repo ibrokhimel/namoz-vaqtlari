@@ -5,7 +5,7 @@
 /*  Every push to main builds the web app in   */
 /*  CI and publishes a release "web-<sha>" with */
 /*  bundle.zip; its body carries a JSON block: */
-/*  { version, builtAt, sha256, message }.     */
+/*  { version, name, builtAt, sha256, message }. */
 /*  The APK downloads that zip into its own    */
 /*  storage and switches to it (Capgo updater, */
 /*  manual mode): no APK reinstall, no install */
@@ -16,9 +16,11 @@
 export const REPO = 'ibrokhimel/namoz-vaqtlari';
 const LATEST_URL = `https://api.github.com/repos/${REPO}/releases/latest`;
 
-/* global __APP_VERSION__, __APP_BUILT_AT__ */
+/* global __APP_VERSION__, __APP_NAME__, __APP_BUILT_AT__ */
+// version = build id (commit) used for update checks; name = what the screen shows (2.4.0)
 export const CURRENT = {
   version: typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'dev',
+  name: typeof __APP_NAME__ !== 'undefined' ? __APP_NAME__ : 'dev',
   builtAt: typeof __APP_BUILT_AT__ !== 'undefined' ? __APP_BUILT_AT__ : new Date(0).toISOString(),
 };
 
@@ -32,7 +34,7 @@ export function parseRelease(rel) {
   const asset = (rel.assets || []).find(a => a.name === 'bundle.zip');
   if (!asset || !meta.version || !meta.builtAt || !/^[0-9a-f]{64}$/.test(meta.sha256 || '')) return null;
   return {
-    version: String(meta.version), builtAt: String(meta.builtAt), sha256: meta.sha256,
+    version: String(meta.version), name: String(meta.name || meta.version), builtAt: String(meta.builtAt), sha256: meta.sha256,
     message: String(meta.message || '').split('\n')[0].slice(0, 120),
     url: asset.browser_download_url,
   };

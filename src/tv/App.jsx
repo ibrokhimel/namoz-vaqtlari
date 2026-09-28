@@ -77,7 +77,7 @@ function VersionStatus() {
   const u = useUpdate();
   if (u.status === 'available' || u.status === 'installing')
     return <span className="f-update" id="versionStatus">Yangilanish mavjud</span>;
-  return <span className="f-version" id="versionStatus">v{u.current.version}</span>;
+  return <span className="f-version" id="versionStatus">v{u.current.name}</span>;
 }
 
 // Test mode (?at=...): impossible to mistake for the real schedule

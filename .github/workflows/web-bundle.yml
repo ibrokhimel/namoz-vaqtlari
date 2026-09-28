@@ -1,7 +1,7 @@
 # Publishes the in-app update for the TV APK.
 # On every push to main: test, build, zip dist/ and publish a GitHub
 # release "web-<sha>" (marked latest) with bundle.zip. The release body
-# carries {version, builtAt, sha256, message}; the app compares it with its
+# carries {version, name, builtAt, sha256, message}; the app compares it with its
 # own build, asks the viewer, downloads the zip, verifies the sha256 and
 # switches to it. Only the 10 newest web-* releases are kept.
 name: Web update bundle
@@ -51,7 +51,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           export MSG="$(git log -1 --pretty=%s)"
-          node -e 'console.log(JSON.stringify({version:process.env.SHORT,builtAt:process.env.APP_BUILT_AT,sha256:process.env.SHA256,message:process.env.MSG.slice(0,120)},null,2))' > meta.json
+          node -e 'console.log(JSON.stringify({version:process.env.SHORT,name:require('./package.json').version,builtAt:process.env.APP_BUILT_AT,sha256:process.env.SHA256,message:process.env.MSG.slice(0,120)},null,2))' > meta.json
           { echo "In-app update bundle for the TV app (installed from inside the app, no APK reinstall)."; echo; echo '```json'; cat meta.json; echo '```'; } > notes.md
           gh release create "web-$SHORT" bundle.zip --title "Web $SHORT" --notes-file notes.md --target "$GITHUB_SHA" --latest
 

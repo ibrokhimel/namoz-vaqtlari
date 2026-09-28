@@ -220,9 +220,9 @@ function RowValue({ row, settings, pending, times, inputRef, readOnly }) {
 }
 
 function updateLabel(u) {
-  if (u.status === 'available') return `Yangilash: v${u.info.version} mavjud`;
+  if (u.status === 'available') return `Yangilash: v${u.info.name} mavjud`;
   if (u.status === 'checking') return 'Tekshirilmoqda…';
-  if (u.status === 'none') return `Eng soʻnggi versiya · v${u.current.version}`;
+  if (u.status === 'none') return `Eng soʻnggi versiya · v${u.current.name}`;
   if (u.status === 'error') return 'Tekshirib boʻlmadi · qayta urinish';
-  return `Yangilanishni tekshirish · v${u.current.version}`;
+  return `Yangilanishni tekshirish · v${u.current.name}`;
 }

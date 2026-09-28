@@ -33,7 +33,7 @@ export default function UpdatePrompt() {
           <motion.div className="update-card" initial={{ y: 24, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
             exit={{ y: 12, opacity: 0 }} transition={{ duration: 0.35, ease: [0.25, 1, 0.5, 1] }}>
             <h2>{installing ? 'Yangilanmoqda…' : 'Yangi versiya mavjud'}</h2>
-            <p className="uc-version">v{u.current.version} → <b>v{u.info.version}</b></p>
+            <p className="uc-version">v{u.current.name} → <b>v{u.info.name}</b></p>
             {u.info.message && <p className="uc-note">{u.info.message}</p>}
             {installing
               ? <div className="uc-progress" aria-hidden="true"><i /></div>
