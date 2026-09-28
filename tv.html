@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="tv-settings.css">
 <script src="core.js"></script>
 <script src="tv.js"></script>
+<script src="tv-dial.js"></script>
 <script>
 // Choose day/dusk/night before the first paint, so a TV switched on at
 // Bomdod never flashes the bright day palette in a dark hall.
@@ -46,18 +47,20 @@
 
       <!-- HERO: the one thing the back row must read -->
       <section class="hero" id="hero">
-        <div class="hero-label" id="heroLabel">Keyingi namoz</div>
-        <div class="hero-main">
+        <div class="hero-text">
+          <div class="hero-head">
+            <div class="hero-label" id="heroLabel">Keyingi namoz</div>
+            <div class="hero-note" id="heroNote"></div>
+          </div>
           <div class="hero-name">
             <span class="hero-uz" id="heroName">—</span>
             <span class="hero-ar" id="heroAr" lang="ar" dir="rtl"></span>
           </div>
-          <div class="hero-time" id="heroTime">--:--</div>
-        </div>
-        <div class="hero-progress"><div class="hero-progress-fill" id="heroProgress"></div></div>
-        <div class="hero-foot">
           <div class="hero-countdown" id="heroCountdown">—</div>
-          <div class="hero-note" id="heroNote"></div>
+        </div>
+        <div class="hero-dial">
+          <svg id="dial" viewBox="0 0 440 440" role="img" aria-label="Kun davomidagi namoz vaqtlari"></svg>
+          <div class="hero-time" id="heroTime">--:--</div>
         </div>
       </section>
 

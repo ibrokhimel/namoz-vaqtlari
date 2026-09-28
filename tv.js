@@ -153,6 +153,7 @@ function renderTV(){
   setText('heroTime',  time);
   st.ramazon=ramazon;
   window._tvState = st;
+  renderDial(document.getElementById('dial'), st, now);
 
   // Today row: Bomdod, Quyosh, Peshin, Asr, Shom, Xufton. Built once, then
   // updated in place so state changes can ease instead of snapping.
@@ -219,11 +220,6 @@ function tickCountdown(){
   setText('heroNote', mk);
   if(st.makruhUntil && now>=st.makruhUntil) st.makruhUntil=null;
 
-  const span=st.next.date-st.from;
-  const frac=span>0?Math.min(1,Math.max(0,(now-st.from)/span)):0;
-  const tf=`scaleX(${frac.toFixed(3)})`;
-  const bar=document.getElementById('heroProgress');
-  if(bar.style.transform!==tf) bar.style.transform=tf;
 }
 
 // Burn-in guard: nudge the whole layout a few pixels every 10 minutes so no

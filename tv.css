@@ -134,22 +134,35 @@ html,body{
 }
 
 /* HERO ─ next prayer, readable from the back of the hall */
-.hero{display:flex;flex-direction:column;justify-content:center;gap:var(--sp-3);min-height:0}
+.hero{
+  display:grid;grid-template-columns:minmax(0,1fr) 440px;column-gap:var(--sp-8);
+  align-items:center;min-height:0;
+}
+.hero-text{display:flex;flex-direction:column;gap:var(--sp-5);min-width:0}
+.hero-head{display:flex;align-items:baseline;justify-content:space-between;gap:var(--sp-6)}
 .hero-label{font-size:var(--t-lead);font-weight:500;color:var(--accent);line-height:1}
-.hero-main{display:flex;align-items:baseline;justify-content:space-between;gap:var(--sp-7)}
+.hero-note{font-size:var(--t-lead);font-weight:500;color:var(--warn);line-height:1.1;text-align:right}
+.hero-note:empty{display:none}
 .hero-name{display:flex;align-items:baseline;gap:var(--sp-6);min-width:0}
 .hero-uz{font-size:var(--t-hero);font-weight:700;color:var(--ink);line-height:1;letter-spacing:-.01em}
 .hero-ar{font-family:var(--f-ar);font-size:6rem;color:var(--mark);line-height:1}
+
+/* DIAL ─ the day as a ring; the next prayer's time sits in the centre */
+.hero-dial{position:relative;width:440px;height:440px}
+.hero-dial svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
 .hero-time{
-  font-family:var(--f-num);font-size:var(--t-hero);font-weight:700;
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:var(--f-num);font-size:7rem;font-weight:700;
   color:var(--mark);line-height:1;font-variant-numeric:tabular-nums;
 }
-.hero-progress{height:6px;border-radius:3px;background:var(--track);overflow:hidden;margin-top:var(--sp-2)}
-.hero-progress-fill{height:100%;background:var(--accent);transform-origin:left center;transform:scaleX(0)}
-.hero-foot{display:flex;align-items:baseline;justify-content:space-between;gap:var(--sp-6);margin-top:var(--sp-2);min-height:8.25rem}
-.hero-note{font-size:var(--t-lead);font-weight:500;color:var(--warn);line-height:1.1;text-align:right}
-.hero-note:empty{display:none}
-.hero-countdown{font-size:var(--t-word);font-weight:500;color:var(--ink-2);line-height:1.1}
+#dial .track{fill:none;stroke:var(--line-2);stroke-width:30}
+#dial .seg{fill:none;stroke:color-mix(in oklch, var(--ink-2) 42%, var(--line-2));stroke-width:30}
+#dial .seg.current{stroke:var(--ink)}
+#dial .seg.next{stroke:var(--accent)}
+#dial .mk{fill:none;stroke:var(--warn);stroke-width:7}
+#dial .tick{stroke:var(--ink-2);stroke-width:3;stroke-linecap:round}
+#dial .now{fill:var(--accent);stroke:var(--bg);stroke-width:6}
+.hero-countdown{min-height:8.25rem;font-size:var(--t-word);font-weight:500;color:var(--ink-2);line-height:1.1}
 .hero-countdown b{font-family:var(--f-num);font-size:var(--t-count);font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}
 
 /* TODAY ─ one row of columns, no cards */
@@ -208,14 +221,15 @@ html,body{
 :root{--ease-out:cubic-bezier(.25,1,.5,1)}           /* ease-out-quart */
 
 /* Hero: a new prayer arrives with a soft rise and fade */
-.hero.enter > *{animation:heroIn .9s var(--ease-out) backwards}
-.hero.enter > :nth-child(2){animation-delay:.08s}
-.hero.enter > :nth-child(3),.hero.enter > :nth-child(4){animation-delay:.16s}
+.hero.enter .hero-text > *{animation:heroIn .9s var(--ease-out) backwards}
+.hero.enter .hero-text > :nth-child(2){animation-delay:.08s}
+.hero.enter .hero-text > :nth-child(3){animation-delay:.16s}
+.hero.enter .hero-time{animation:heroIn .9s .12s var(--ease-out) backwards}
 @keyframes heroIn{from{opacity:0;transform:translateY(16px)}}
 
 /* "vaqti kirdi": the prayer that just began takes the accent colour */
 .hero.started .hero-label,.hero.started .hero-countdown,.hero.started .hero-time{color:var(--accent)}
-.hero.started .hero-progress{visibility:hidden}
+.hero.started #dial .seg.current{stroke:var(--accent)}
 
 /* Today columns ease between passed / current / next */
 .t-col{transition:background-color .8s var(--ease-out)}
@@ -223,8 +237,8 @@ html,body{
 .t-col.next::after{transform-origin:left;animation:underline .8s var(--ease-out) backwards}
 @keyframes underline{from{transform:scaleX(0)}}
 
-/* Progress: move smoothly between once-a-second updates */
-.hero-progress-fill{transition:transform 1s linear}
+/* Dial: a period changing state eases its colour */
+#dial .seg{transition:stroke .8s var(--ease-out)}
 
 /* Burn-in nudge: slow enough that nobody sees it move */
 .layout{transition:transform 4s ease-in-out}
