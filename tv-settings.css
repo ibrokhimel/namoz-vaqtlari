@@ -1,0 +1,79 @@
+/* ═══════════════════════════════════════════════════════
+   TV SETTINGS PANEL — operated with a D-pad remote
+   Lives inside .stage so it scales with the rest of the screen.
+═══════════════════════════════════════════════════════ */
+
+/* "Hold OK" feedback: a bar that fills over the 2 s hold */
+.hold-hint{
+  position:absolute;left:50%;bottom:54px;z-index:40;
+  transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:var(--sp-3, 12px);
+  padding:var(--sp-4, 16px) var(--sp-6, 32px);
+  background:#0b1322;border:1px solid var(--border);border-radius:12px;
+  font-size:var(--t-caption);color:var(--text);
+  opacity:0;visibility:hidden;
+  transition:opacity .2s ease-out, visibility 0s linear .2s;
+}
+.hold-hint i{
+  display:block;width:360px;height:6px;border-radius:3px;
+  background:linear-gradient(var(--teal),var(--teal)) left/0% 100% no-repeat, rgba(255,255,255,.12);
+}
+.hold-hint.holding{opacity:1;visibility:visible;transition:opacity .2s ease-out}
+.hold-hint.holding i{background-size:100% 100%, auto;transition:background-size 2s linear}
+
+/* Panel: right side, so the prayer screen stays visible on the left and
+   shows the effect of each change live */
+.tv-settings{
+  position:absolute;top:0;right:0;bottom:0;z-index:50;
+  width:880px;
+  display:flex;flex-direction:column;
+  padding:54px 96px 54px 56px;               /* stays inside the overscan-safe area */
+  background:#0b1322;
+  border-left:1px solid var(--border);
+  box-shadow:-24px 0 64px rgba(0,0,0,.5);
+  transform:translateX(100%);visibility:hidden;
+  transition:transform .24s cubic-bezier(.25,1,.5,1), visibility 0s linear .24s;
+}
+.tv-settings.open{transform:none;visibility:visible;transition:transform .24s cubic-bezier(.25,1,.5,1)}
+
+.ts-head{padding-bottom:var(--sp-5, 24px);border-bottom:1px solid var(--border)}
+.ts-head h2{font-size:var(--t-lead);font-weight:700;color:var(--text);line-height:1.1}
+.ts-head p{font-size:var(--t-caption);color:var(--soft);margin-top:var(--sp-3, 12px);line-height:1.3}
+
+.ts-list{list-style:none;flex:1;min-height:0;overflow:hidden;padding-top:var(--sp-4, 16px)}
+.ts-row{
+  display:flex;align-items:center;justify-content:space-between;gap:var(--sp-5, 24px);
+  min-height:64px;padding:0 var(--sp-5, 24px);border-radius:10px;
+  font-size:var(--t-small);color:var(--text);
+}
+.ts-row + .ts-row{margin-top:2px}
+.ts-label{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ts-value{display:flex;align-items:center;gap:var(--sp-3, 12px);flex-shrink:0;color:var(--gold-lt)}
+.ts-val{font-weight:700;min-width:5.5em;text-align:right;font-variant-numeric:tabular-nums}
+.ts-note{font-family:var(--f-num);color:var(--soft);min-width:3.2em;text-align:right}
+.ts-arrow{font-weight:400;font-size:.8em;color:transparent}
+.ts-action .ts-label{color:var(--soft)}
+
+.ts-input{
+  width:400px;height:48px;padding:0 var(--sp-3, 12px);
+  font:inherit;color:var(--text);
+  background:transparent;border:1px solid transparent;border-radius:8px;outline:none;
+  text-overflow:ellipsis;
+}
+.ts-input[dir="rtl"]{font-family:var(--f-ar)}
+.ts-input::placeholder{color:var(--soft)}
+
+/* Focus: inverted, unmistakable from across a room */
+.ts-row.focused{background:var(--text);color:var(--bg)}
+.ts-row.focused .ts-value,
+.ts-row.focused .ts-label,
+.ts-row.focused .ts-input{color:var(--bg)}
+.ts-row.focused .ts-note{color:#3a4556}
+.ts-row.focused .ts-arrow{color:var(--bg)}
+.ts-row.focused .ts-input::placeholder{color:#5b6576}
+.ts-row.editing .ts-input{background:#fff;border-color:var(--teal);box-shadow:0 0 0 3px var(--teal)}
+
+@media (prefers-reduced-motion: reduce){
+  .tv-settings,.tv-settings.open,.hold-hint,.hold-hint.holding{transition:none}
+  .hold-hint.holding i{transition:background-size 2s steps(4)}
+}
