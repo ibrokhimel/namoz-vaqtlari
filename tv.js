@@ -3,37 +3,36 @@
 /* ─────────────────────────────────────────── */
 
 const PRAYERS_TV=[
-  {key:'fajr',   nameUz:'Bomdod',nameAr:'الفجر', icon:'🌙'},
-  {key:'dhuhr',  nameUz:'Peshin',nameAr:'الظهر', icon:'☀️'},
-  {key:'asr',    nameUz:'Asr',   nameAr:'العصر', icon:'🌤️'},
-  {key:'maghrib',nameUz:'Shom',  nameAr:'المغرب',icon:'🌇'},
-  {key:'isha',   nameUz:'Xufton',nameAr:'العشاء',icon:'🌙'},
+  {key:'fajr',   nameUz:'Bomdod',nameAr:'الفجر'},
+  {key:'dhuhr',  nameUz:'Peshin',nameAr:'الظهر'},
+  {key:'asr',    nameUz:'Asr',   nameAr:'العصر'},
+  {key:'maghrib',nameUz:'Shom',  nameAr:'المغرب'},
+  {key:'isha',   nameUz:'Xufton',nameAr:'العشاء'},
 ];
 const DAYS_UZ=['Yakshanba','Dushanba','Seshanba','Chorshanba','Payshanba','Juma','Shanba'];
 const MONTHS_UZ=['Yanvar','Fevral','Mart','Aprel','May','Iyun','Iyul','Avgust','Sentabr','Oktabr','Noyabr','Dekabr'];
 
-// Stars
-(function(){
-  const el=document.getElementById('stars');
-  for(let i=0;i<200;i++){
-    const s=document.createElement('div');s.className='star';
-    const sz=Math.random()*2.8+.4;
-    s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*72}%;width:${sz}px;height:${sz}px;--d:${(Math.random()*3+1.5).toFixed(1)}s;--dl:${(Math.random()*7).toFixed(1)}s`;
-    el.appendChild(s);
-  }
-})();
-
+// How long the hero keeps announcing a prayer that has just begun
+const STARTED_MS = 5 * 60000;
 
 const pad2 = n => String(n).padStart(2,'0');
+const hhmm = d => `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
 const fmtDayUz = d => `${DAYS_UZ[d.getDay()]}, ${d.getDate()}-${MONTHS_UZ[d.getMonth()].toLowerCase()}`;
+
+// Touch the DOM only when something changed: every write repaints, and TV
+// chips are slow.
+function setText(id, v){ const el=document.getElementById(id); if(el.textContent!==v) el.textContent=v; }
+function setHTML(el, v){ if(el.innerHTML!==v) el.innerHTML=v; }
 
 function tickClock(){
   const now=appNow();
-  const settings=loadSettings();
-  document.getElementById('liveClock').textContent=`${pad2(now.getHours())}:${pad2(now.getMinutes())}`;
-  const h=toHijri(now, settings.hijriAdj||0);
-  document.getElementById('liveDate').textContent=`${fmtDayUz(now)} ${now.getFullYear()}`;
-  document.getElementById('liveHijri').textContent=`${h.d} ${h.mName} ${h.y}`;
+  setText('liveClock', hhmm(now));
+  if(now.getSeconds()===0 || !tickClock.done){
+    const h=toHijri(now, loadSettings().hijriAdj||0);
+    setText('liveDate', `${fmtDayUz(now)} ${now.getFullYear()}`);
+    setText('liveHijri', `${h.d} ${h.mName} ${h.y}`);
+    tickClock.done=true;
+  }
 }
 
 // ── SPECIAL DAYS ─────────────────────────────
@@ -120,48 +119,73 @@ function renderTV(){
   const phase=dayPhase(now,st.T);
   if(document.documentElement.dataset.phase!==phase) document.documentElement.dataset.phase=phase;
 
-  document.getElementById('mosqueName').textContent   =settings.mosqueName   ||'Namoz Vaqtlari';
-  document.getElementById('mosqueArabic').textContent =settings.mosqueArabic ||'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيم';
-  document.getElementById('cityFooter').textContent   =city.name;
-  document.getElementById('methodFooter').textContent =`${(METHODS[settings.method]||METHODS.Karachi).name.split(' (')[0]} usuli`;
-  document.getElementById('asrFooter').textContent    =`Asr: ${(ASR_METHODS[settings.asrMethod]||ASR_METHODS.Hanafi).name}`;
+  setText('mosqueName',   settings.mosqueName   ||'Namoz Vaqtlari');
+  setText('mosqueArabic', settings.mosqueArabic ||'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيم');
+  setText('cityFooter',   city.name);
+  setText('methodFooter', `${(METHODS[settings.method]||METHODS.Karachi).name.split(' (')[0]} usuli`);
+  setText('asrFooter',    `Asr: ${(ASR_METHODS[settings.asrMethod]||ASR_METHODS.Hanafi).name}`);
 
-  // Hero
+  // Hero: announces a prayer for 5 minutes after it begins ("vaqti
+  // kirdi"), otherwise shows the next prayer.
   const ramazon=isRamazon(now,settings);
-  const nextDay=st.next.tomorrow?st.tom:now;
-  const heroLabel=(isRamazon(nextDay,settings)&&RAMAZON_HERO[st.next.key])||'Keyingi namoz';
-  document.getElementById('heroLabel').textContent = st.next.tomorrow ? `${heroLabel} · ertaga` : heroLabel;
-  document.getElementById('heroName').textContent  = st.next.nameUz;
-  document.getElementById('heroAr').textContent    = st.next.nameAr;
-  document.getElementById('heroTime').textContent  = st.next.date
-    ? `${pad2(st.next.date.getHours())}:${pad2(st.next.date.getMinutes())}` : '--:--';
+  st.started = st.current && (now - st.current.date) < STARTED_MS ? st.current : null;
+  let label, p, time;
+  if(st.started){
+    p=st.started; label='Hozir'; time=hhmm(p.date);
+    st.startedUntil=new Date(+p.date + STARTED_MS);
+  } else {
+    p=st.next;
+    const nextDay=st.next.tomorrow?st.tom:now;
+    label=(isRamazon(nextDay,settings)&&RAMAZON_HERO[p.key])||'Keyingi namoz';
+    if(p.tomorrow) label+=' · ertaga';
+    time=p.date?hhmm(p.date):'--:--';
+  }
+  const heroKey=`${st.started?'now':'next'}:${p.key}:${p.nameUz}`;
+  const hero=document.getElementById('hero');
+  if(hero.dataset.key!==heroKey){
+    hero.dataset.key=heroKey;
+    hero.classList.toggle('started', !!st.started);
+    hero.classList.remove('enter'); void hero.offsetWidth; hero.classList.add('enter');
+  }
+  setText('heroLabel', label);
+  setText('heroName',  p.nameUz);
+  setText('heroAr',    p.nameAr);
+  setText('heroTime',  time);
+  st.ramazon=ramazon;
   window._tvState = st;
 
-  // Today row: Bomdod, Quyosh, Peshin, Asr, Shom, Xufton
+  // Today row: Bomdod, Quyosh, Peshin, Asr, Shom, Xufton. Built once, then
+  // updated in place so state changes can ease instead of snapping.
   const row=document.getElementById('todayRow');
-  row.innerHTML='';
   const cols=[PRAYERS_TV[0], {key:'sunrise', nameUz:'Quyosh', nameAr:'الشروق', sun:true}, ...PRAYERS_TV.slice(1)];
-  cols.forEach(p=>{
-    p=forDay(p,now);
-    const d=decimalToDate(st.T[p.key],now);
-    const isCur =!p.sun && st.current && st.current.key===p.key;
-    const isNext=!p.sun && !st.next.tomorrow && st.next.key===p.key;
+  if(row.children.length!==cols.length){
+    row.innerHTML=cols.map(c=>`
+      <div class="t-col${c.sun?' sun':''}" data-key="${c.key}">
+        <div class="t-head"><span class="t-uz"></span>${c.sun?'':'<span class="t-ar" lang="ar"></span>'}</div>
+        <div class="t-time"></div>
+        <div class="t-state"></div>
+      </div>`).join('');
+  }
+  cols.forEach((c,i)=>{
+    const q=forDay(c,now), col=row.children[i];
+    const d=decimalToDate(st.T[q.key],now);
+    const isCur =!q.sun && st.current && st.current.key===q.key;
+    const isNext=!q.sun && !st.next.tomorrow && st.next.key===q.key;
     const isPast=!isCur && !isNext && d && d<=now;
-    const col=document.createElement('div');
-    col.className=`t-col${p.sun?' sun':''}${isCur?' current':''}${isNext?' next':''}${isPast?' passed':''}`;
-    const state=(ramazon&&RAMAZON_NOTE[p.key])||(isCur?'Hozir':isNext?'Keyingi':'');
-    col.innerHTML=`
-      <div class="t-head"><span class="t-uz">${p.nameUz}</span>${p.sun?'':`<span class="t-ar" lang="ar">${p.nameAr}</span>`}</div>
-      <div class="t-time">${decimalToHHMM(st.T[p.key])}</div>
-      <div class="t-state">${state}</div>`;
-    row.appendChild(col);
+    col.classList.toggle('current', !!isCur);
+    col.classList.toggle('next', !!isNext);
+    col.classList.toggle('passed', !!isPast);
+    const set=(sel,v)=>{ const el=col.querySelector(sel); if(el && el.textContent!==v) el.textContent=v; };
+    set('.t-uz', q.nameUz); set('.t-ar', q.nameAr);
+    set('.t-time', decimalToHHMM(st.T[q.key]));
+    set('.t-state', (ramazon&&RAMAZON_NOTE[q.key])||(isCur?'Hozir':isNext?'Keyingi':''));
   });
 
   // Tomorrow: one line
   const TT=getTimesForDate(st.tom,settings,city);
   const items=[['Bomdod','fajr'],['Quyosh','sunrise'],[st.tom.getDay()===5?'Juma':'Peshin','dhuhr'],['Asr','asr'],['Shom','maghrib'],['Xufton','isha']]
     .map(([n,k])=>`<span class="tl-item">${n}<b>${decimalToHHMM(TT[k])}</b></span>`).join('');
-  document.getElementById('tomorrowLine').innerHTML=`<span class="tl-day">Ertaga, ${fmtDayUz(st.tom).split(', ')[1]}</span>${items}`;
+  setHTML(document.getElementById('tomorrowLine'), `<span class="tl-day">Ertaga, ${fmtDayUz(st.tom).split(', ')[1]}</span>${items}`);
 
   tickCountdown();
 }
@@ -174,24 +198,42 @@ function tickCountdown(){
   const el=document.getElementById('heroCountdown');
   if(!st.next.date){ el.textContent='Vaqtni hisoblab boʻlmadi'; return; }
   const ms=st.next.date-now;
-  if(ms<=0){ renderTV(); return; }
-  const totalS=Math.floor(ms/1000);
-  const h=Math.floor(totalS/3600), m=Math.floor((totalS%3600)/60), s=totalS%60;
-  let html;
-  if(totalS<600)      html=`<b>${m}</b> daqiqa <b>${pad2(s)}</b> soniya qoldi`;
-  else if(h>0)        html=`<b>${h}</b> soat <b>${m}</b> daqiqa qoldi`;
-  else                html=`<b>${m}</b> daqiqa qoldi`;
-  if(el.innerHTML!==html) el.innerHTML=html;
+  if(ms<=0 || (st.started && now>=st.startedUntil)){ renderTV(); return; }
 
-  const note=document.getElementById('heroNote');
-  const mk=st.makruhUntil && now<st.makruhUntil
-    ? `Hozir makruh vaqt · ${pad2(st.makruhUntil.getHours())}:${pad2(st.makruhUntil.getMinutes())} gacha` : '';
-  if(note.textContent!==mk) note.textContent=mk;
+  let html;
+  if(st.started){
+    const k=st.started.key;
+    html = st.ramazon && k==='maghrib' ? 'Iftor vaqti kirdi'
+         : st.ramazon && k==='fajr'    ? 'Saharlik vaqti tugadi'
+         : `${st.started.nameUz} vaqti kirdi`;
+  } else {
+    const totalS=Math.floor(ms/1000);
+    const h=Math.floor(totalS/3600), m=Math.floor((totalS%3600)/60), s=totalS%60;
+    if(totalS<600)      html=`<b>${m}</b> daqiqa <b>${pad2(s)}</b> soniya qoldi`;
+    else if(h>0)        html=`<b>${h}</b> soat <b>${m}</b> daqiqa qoldi`;
+    else                html=`<b>${m}</b> daqiqa qoldi`;
+  }
+  setHTML(el, html);
+
+  const mk=st.makruhUntil && now<st.makruhUntil ? `Hozir makruh vaqt · ${hhmm(st.makruhUntil)} gacha` : '';
+  setText('heroNote', mk);
   if(st.makruhUntil && now>=st.makruhUntil) st.makruhUntil=null;
 
   const span=st.next.date-st.from;
   const frac=span>0?Math.min(1,Math.max(0,(now-st.from)/span)):0;
-  document.getElementById('heroProgress').style.transform=`scaleX(${frac.toFixed(4)})`;
+  const tf=`scaleX(${frac.toFixed(3)})`;
+  const bar=document.getElementById('heroProgress');
+  if(bar.style.transform!==tf) bar.style.transform=tf;
+}
+
+// Burn-in guard: nudge the whole layout a few pixels every 10 minutes so no
+// pixel shows the same thing for hours. Invisible from the hall.
+const SHIFTS=[[0,0],[3,2],[-2,3],[-3,-2],[2,-3],[0,3],[-3,0]];
+let shiftIdx=0;
+function shiftLayout(){
+  shiftIdx=(shiftIdx+1)%SHIFTS.length;
+  const [x,y]=SHIFTS[shiftIdx];
+  document.querySelector('.layout').style.transform=`translate(${x}px,${y}px)`;
 }
 
 window.addEventListener('storage', e=>{ if(e.key==='prayerSettings'){ tickClock(); renderTV(); } });
@@ -202,5 +244,6 @@ document.addEventListener('DOMContentLoaded',()=>{
   setInterval(tickClock,     1000);
   setInterval(tickCountdown, 1000);
   setInterval(renderTV,     60000);
+  setInterval(shiftLayout, 10*60000);
   tickCountdown();
 });
