@@ -1,15 +1,4 @@
-// Weather scene painted behind the TV screen.
-//
-// Legibility first: every colour stays close to the phase's background and
-// at low opacity, so text contrast barely moves (checked by the legibility
-// test, which samples the real pixels behind each text).
-//
-// Cheap on TV chips. Only falling rain/snow is drawn per frame, on a
-// half-resolution canvas, one batched path per opacity bucket, 30 fps,
-// paused while the screen is hidden. Clouds, fog, twinkles and lightning
-// are plain elements moved by CSS animations (compositor only, no repaint);
-// stars are painted once.
-
+// Lightweight precipitation over the generated photographic sky.
 export const W = 1920, H = 1080;
 
 // Colours per phase: [r, g, b] and opacity ranges
@@ -26,38 +15,6 @@ const ALPHA = {
 
 export const rnd = (a, b) => a + Math.random() * (b - a);
 const rgba = ([r, g, b], a) => `rgba(${r},${g},${b},${a.toFixed(3)})`;
-
-// Soft cloud sprite (overlapping radial blobs) as an image URL, per colour
-const spriteCache = new Map();
-export function cloudSpriteURL(rgb) {
-  const key = rgb.join(',');
-  if (spriteCache.has(key)) return spriteCache.get(key);
-  const c = document.createElement('canvas');
-  c.width = 640; c.height = 240;
-  const x = c.getContext('2d');
-  for (const [cx, cy, r] of [[160, 150, 110], [290, 120, 140], [430, 140, 120], [540, 160, 90], [340, 170, 130]]) {
-    const g = x.createRadialGradient(cx, cy, 0, cx, cy, r);
-    g.addColorStop(0, rgba(rgb, 0.55)); g.addColorStop(0.6, rgba(rgb, 0.25)); g.addColorStop(1, rgba(rgb, 0));
-    x.fillStyle = g; x.beginPath(); x.arc(cx, cy, r, 0, Math.PI * 2); x.fill();
-  }
-  const url = c.toDataURL();
-  spriteCache.set(key, url);
-  return url;
-}
-
-// Stars, painted once onto their own canvas
-export function paintStars(canvas, phase, resolution) {
-  const ink = INK[phase], al = ALPHA[phase];
-  canvas.width = Math.round(W * resolution); canvas.height = Math.round(H * resolution);
-  const ctx = canvas.getContext('2d');
-  ctx.setTransform(resolution, 0, 0, resolution, 0, 0);
-  if (!ink?.star) return;
-  const n = phase === 'night' ? 90 : 35;
-  for (let i = 0; i < n; i++) {
-    ctx.fillStyle = rgba(ink.star, rnd(al.star[0], al.star[1]));
-    ctx.beginPath(); ctx.arc(rnd(0, W), rnd(0, H * 0.62), rnd(0.6, 1.6), 0, Math.PI * 2); ctx.fill();
-  }
-}
 
 // Falling rain / drizzle / snow; returns stop()
 export function startPrecipitation(canvas, { phase, kind, intensity = 2, reduced = false, resolution = 0.5 }) {

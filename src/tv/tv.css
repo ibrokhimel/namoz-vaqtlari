@@ -271,67 +271,30 @@ html,body{
 }
 .sim-badge b{font-weight:700;letter-spacing:.04em;margin-right:8px}
 
-/* ── SKY: weather scene behind the screen ───────────────────
-   Gradients stay within a few lightness steps of the phase --bg,
-   so every text colour keeps its contrast (verified by sampling the
-   real pixels behind each text element in every phase x weather). */
+/* Generated sky photographs. A phase-specific veil keeps text readable
+   while retaining natural cloud texture; all images are bundled offline. */
 .sky{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
-.sky::before{content:'';position:absolute;inset:0;transition:background 3s ease}
+.sky-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  animation:skyReveal 1.8s ease-out both}
+@keyframes skyReveal{from{opacity:0}to{opacity:1}}
+.sky-shade{position:absolute;inset:0;background:
+  linear-gradient(180deg,rgba(5,12,24,.48),rgba(5,12,24,.72) 55%,rgba(5,12,24,.84))}
+:root[data-phase="day"] .sky-shade{background:
+  linear-gradient(180deg,rgba(245,249,252,.68),rgba(245,249,252,.86) 55%,rgba(245,249,252,.94))}
+:root[data-phase="dusk"] .sky-shade{background:
+  linear-gradient(180deg,rgba(13,24,45,.58),rgba(13,24,45,.79) 55%,rgba(13,24,45,.9))}
+/* Neutral daytime weather images become low-glare skies after sunset. */
+:root[data-phase="night"] .sky-photo{filter:brightness(.45) saturate(.65)}
+:root[data-phase="dusk"] .sky-photo{filter:brightness(.7) saturate(.8)}
+.sky.wx-fog .sky-photo{filter:blur(12px) saturate(.45);transform:scale(1.04)}
+:root[data-phase="night"] .sky.wx-fog .sky-photo{filter:blur(12px) brightness(.45) saturate(.45)}
+:root[data-phase="dusk"] .sky.wx-fog .sky-photo{filter:blur(12px) brightness(.7) saturate(.45)}
 .sky-layer{position:absolute;inset:0;width:1920px;height:1080px}
-
-/* clouds and fog drift on the compositor: no repaint per frame */
-.cloud{position:absolute;left:0;background-size:100% 100%;will-change:transform;
-  animation:cloudDrift linear infinite}
-@keyframes cloudDrift{from{transform:translateX(-1200px)}to{transform:translateX(2000px)}}
-:root[data-phase="day"] .cloud{opacity:.85}
-:root[data-phase="dusk"] .cloud{opacity:.55}
-:root[data-phase="night"] .cloud,:root:not([data-phase]) .cloud{opacity:.6}
-.fog-band{position:absolute;left:0;width:1920px;height:280px;will-change:transform;
-  background:linear-gradient(180deg, transparent, color-mix(in oklab, var(--ink-2) 11%, transparent), transparent);
-  animation:fogDrift 23s ease-in-out infinite alternate}
-:root[data-phase="day"] .fog-band{background:linear-gradient(180deg, transparent, oklch(1 0 0 / .55), transparent)}
-@keyframes fogDrift{from{transform:translateY(-60px)}to{transform:translateY(60px)}}
-.twinkle{position:absolute;width:3px;height:3px;border-radius:50%;background:oklch(0.9 0.02 250);
-  opacity:.15;animation:twinkle ease-in-out infinite alternate}
-@keyframes twinkle{to{opacity:.55}}
 .lightning{position:absolute;inset:0;background:oklch(0.97 0.01 260);opacity:0;pointer-events:none}
 .lightning.on{animation:lightning .9s ease-out}
 @keyframes lightning{0%{opacity:0}8%{opacity:.08}20%{opacity:.02}30%{opacity:.06}100%{opacity:0}}
 :root[data-phase="day"] .lightning.on{animation-name:lightningDay}
 @keyframes lightningDay{0%{opacity:0}8%{opacity:.04}30%{opacity:.03}100%{opacity:0}}
-
-/* clear / partly: a lit sky at the top fading into the page */
-:root[data-phase="day"] .sky::before{background:
-  radial-gradient(60% 55% at 78% -8%, oklch(0.95 0.045 85 / .9), transparent 70%),
-  linear-gradient(180deg, oklch(0.93 0.03 232), var(--bg) 58%)}
-:root[data-phase="dusk"] .sky::before{background:
-  radial-gradient(90% 45% at 50% 112%, oklch(0.36 0.07 35 / .55), transparent 70%),
-  linear-gradient(180deg, oklch(0.31 0.06 268), var(--bg) 60%)}
-:root[data-phase="night"] .sky::before,:root:not([data-phase]) .sky::before{background:
-  linear-gradient(180deg, oklch(0.19 0.035 262), var(--bg) 62%)}
-
-/* overcast, rain, snow, fog, storm: flatter and greyer */
-:root[data-phase="day"][data-weather="cloudy"] .sky::before,
-:root[data-phase="day"][data-weather="rain"] .sky::before,
-:root[data-phase="day"][data-weather="drizzle"] .sky::before,
-:root[data-phase="day"][data-weather="thunder"] .sky::before,
-:root[data-phase="day"][data-weather="snow"] .sky::before,
-:root[data-phase="day"][data-weather="fog"] .sky::before{
-  background:linear-gradient(180deg, oklch(0.87 0.012 245), var(--bg) 62%)}
-:root[data-phase="dusk"][data-weather="cloudy"] .sky::before,
-:root[data-phase="dusk"][data-weather="rain"] .sky::before,
-:root[data-phase="dusk"][data-weather="drizzle"] .sky::before,
-:root[data-phase="dusk"][data-weather="thunder"] .sky::before,
-:root[data-phase="dusk"][data-weather="snow"] .sky::before,
-:root[data-phase="dusk"][data-weather="fog"] .sky::before{
-  background:linear-gradient(180deg, oklch(0.30 0.025 255), var(--bg) 62%)}
-:root[data-phase="night"][data-weather="cloudy"] .sky::before,
-:root[data-phase="night"][data-weather="rain"] .sky::before,
-:root[data-phase="night"][data-weather="drizzle"] .sky::before,
-:root[data-phase="night"][data-weather="thunder"] .sky::before,
-:root[data-phase="night"][data-weather="snow"] .sky::before,
-:root[data-phase="night"][data-weather="fog"] .sky::before{
-  background:linear-gradient(180deg, oklch(0.18 0.012 250), var(--bg) 62%)}
 
 /* Makruh: the whole screen warms towards red, gently */
 .makruh-veil{position:absolute;inset:0;opacity:0;transition:opacity 3s ease;

@@ -1,58 +1,40 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useReducedMotion } from 'motion/react';
-import { INK, W, cloudSpriteURL, paintStars, rnd, startPrecipitation } from './scene.js';
+import { rnd, startPrecipitation } from './scene.js';
+import daySky from '../../assets/weather/day.webp';
+import duskSky from '../../assets/weather/dusk.webp';
+import nightSky from '../../assets/weather/night.webp';
+import overcastSky from '../../assets/weather/overcast.webp';
+import stormSky from '../../assets/weather/storm.webp';
+import fogSky from '../../assets/weather/fog.webp';
 
-const CLOUDS = { partly: 3, cloudy: 6, rain: 5, drizzle: 5, thunder: 7, snow: 4 };
+const PHASE_SKIES = { day: daySky, dusk: duskSky, night: nightSky };
+const WEATHER_SKIES = { cloudy: overcastSky, snow: overcastSky, rain: stormSky, drizzle: stormSky, thunder: stormSky, fog: fogSky };
 const FALLING = new Set(['rain', 'drizzle', 'thunder', 'snow']);
 
-// The sky behind everything, back to front: gradient (CSS, per phase +
-// weather), stars (painted once), drifting clouds and fog (CSS-animated
-// elements), falling rain/snow (canvas), lightning, and a faint red veil
-// during makruh. Everything stays close to the page background so text
-// keeps its contrast.
+// Locally bundled photographic skies, with lightweight precipitation above
+// the contrast veil. No generated canvas cloud sprites or synthetic stars.
 export default function Sky({ phase, weather, makruh, scale }) {
   const reduced = useReducedMotion();
   const kind = weather?.kind || 'none';
   const intensity = weather?.intensity || 2;
   const dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
-  const starRes = Math.min(1.5, Math.max(0.5, scale * dpr));
   const rainRes = Math.min(0.75, Math.max(0.4, scale * dpr * 0.5));   // soft streaks: half res is plenty
 
-  const starsRef = useRef(null), rainRef = useRef(null);
-  const showStars = phase !== 'day' && (kind === 'clear' || kind === 'partly');
+  const rainRef = useRef(null);
+  const source = kind === 'none' ? null : WEATHER_SKIES[kind] || PHASE_SKIES[phase] || nightSky;
 
-  useEffect(() => { if (showStars && starsRef.current) paintStars(starsRef.current, phase, starRes); }, [showStars, phase, starRes]);
   useEffect(() => {
     if (!FALLING.has(kind) || !rainRef.current) return undefined;
     return startPrecipitation(rainRef.current, { phase, kind: kind === 'thunder' ? 'rain' : kind, intensity: kind === 'thunder' ? 3 : intensity, reduced, resolution: rainRes });
   }, [phase, kind, intensity, reduced, rainRes]);
 
-  // clouds: fixed layout per kind, drifting by CSS
-  const clouds = useMemo(() => {
-    const n = CLOUDS[kind] || 0;
-    const url = n ? cloudSpriteURL((INK[phase] || INK.night).cloud) : null;
-    return Array.from({ length: n }, (_, i) => {
-      const k = rnd(0.9, 1.8), dur = rnd(180, 320);
-      return { url, top: rnd(-60, 380), w: 640 * k, h: 240 * k, dur, delay: -rnd(0, dur), key: i };
-    });
-  }, [kind, phase]);
-
-  // a few stars that twinkle (CSS opacity), on top of the static ones
-  const twinkles = useMemo(() => (showStars ? Array.from({ length: 12 }, (_, i) => ({
-    key: i, x: rnd(0, W), y: rnd(0, 640), dur: rnd(4, 9), delay: -rnd(0, 9),
-  })) : []), [showStars]);
-
   const flash = useLightning(kind === 'thunder' && !reduced);
 
   return (
     <div className={`sky wx-${kind}`} aria-hidden="true">
-      {showStars && <canvas ref={starsRef} className="sky-layer" />}
-      {twinkles.map(t => <i key={t.key} className="twinkle" style={{ left: t.x, top: t.y, animationDuration: `${t.dur}s`, animationDelay: `${t.delay}s` }} />)}
-      {clouds.map(c => (
-        <div key={c.key} className="cloud" style={{ top: c.top, width: c.w, height: c.h, backgroundImage: `url(${c.url})`,
-          animationDuration: `${c.dur}s`, animationDelay: `${c.delay}s` }} />
-      ))}
-      {kind === 'fog' && [0, 1, 2, 3].map(i => <div key={i} className="fog-band" style={{ top: 60 + i * 240, animationDelay: `${-i * 7}s` }} />)}
+      {source && <img key={source} className="sky-photo" src={source} alt="" decoding="async" />}
+      {source && <div className="sky-shade" />}
       {FALLING.has(kind) && <canvas ref={rainRef} className="sky-layer" />}
       {kind === 'thunder' && <div className={`lightning${flash ? ' on' : ''}`} key={flash} />}
       <div className={`makruh-veil${makruh ? ' on' : ''}`} />
