@@ -25,14 +25,15 @@ const BlurText = ({
   animationTo,
   easing = t => t,
   onAnimationComplete,
-  stepDuration = 0.35
+  stepDuration = 0.35,
+  animateOnMount = false // [namoz-vaqtlari] play at once, never wait for IntersectionObserver
 }) => {
   const elements = animateBy === 'words' ? text.split(' ') : text.split('');
-  const [inView, setInView] = useState(false);
+  const [inView, setInView] = useState(animateOnMount);
   const ref = useRef(null);
 
   useEffect(() => {
-    if (!ref.current) return;
+    if (!ref.current || animateOnMount) return;
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -44,7 +45,7 @@ const BlurText = ({
     );
     observer.observe(ref.current);
     return () => observer.disconnect();
-  }, [threshold, rootMargin]);
+  }, [threshold, rootMargin, animateOnMount]);
 
   const defaultFrom = useMemo(
     () =>

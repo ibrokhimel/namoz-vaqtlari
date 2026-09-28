@@ -1,0 +1,26 @@
+/* Test page: a plain developer surface, not part of the TV screen */
+:root{
+  --bg:oklch(0.97 0.005 240); --surface:#fff; --ink:oklch(0.24 0.035 252); --ink-2:oklch(0.47 0.03 250);
+  --line:oklch(0.88 0.012 240); --accent:oklch(0.47 0.10 205);
+  color-scheme:light;
+}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:'Tajawal',system-ui,sans-serif;padding:24px 16px 48px}
+.pv-head{max-width:1600px;margin:0 auto 24px;display:flex;flex-wrap:wrap;gap:16px 32px;align-items:flex-end;justify-content:space-between}
+.pv-head h1{font-size:1.75rem;line-height:1.2}
+.pv-head p{color:var(--ink-2);margin-top:4px;max-width:60ch}
+.pv-form{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+.pv-form label{display:flex;flex-direction:column;gap:4px;font-size:.875rem;color:var(--ink-2)}
+.pv-form input,.pv-form select{font:inherit;font-size:1rem;color:var(--ink);padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);min-height:44px}
+.pv-form button{font:inherit;font-size:1rem;font-weight:700;color:#fff;background:var(--accent);border:0;border-radius:8px;padding:0 20px;min-height:44px;cursor:pointer}
+.pv-form button:focus-visible,.pv-form input:focus-visible,.pv-form select:focus-visible,.pv-links a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.pv-grid{max-width:1600px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,440px),1fr));gap:20px}
+.pv-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.pv-frame{aspect-ratio:16/9;position:relative;background:#050911}
+.pv-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0;pointer-events:none}
+.pv-meta{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 14px}
+.pv-meta h2{font-size:1rem;line-height:1.3}
+.pv-meta p{font-size:.875rem;color:var(--ink-2);margin-top:2px}
+.pv-links{display:flex;gap:8px;flex-shrink:0}
+.pv-links a{font-size:.875rem;font-weight:700;color:var(--accent);text-decoration:none;padding:8px 10px;border:1px solid var(--line);border-radius:8px;min-height:36px}
+.pv-links a:hover{background:var(--bg)}

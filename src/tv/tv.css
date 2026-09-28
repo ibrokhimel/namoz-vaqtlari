@@ -282,3 +282,12 @@ html,body{
 .hero-countdown b .counter-container{vertical-align:-0.16em}
 .dial-clock{display:flex;align-items:center;justify-content:center}
 .dial-clock .colon{padding:0 .04em;transform:translateY(-.06em)}
+
+/* Test mode badge (?at=...) — deliberately loud */
+.sim-badge{
+  position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:60;
+  padding:8px 20px;border-radius:999px;
+  background:var(--warn);color:var(--bg);
+  font-size:var(--t-caption);font-weight:500;white-space:nowrap;
+}
+.sim-badge b{font-weight:700;letter-spacing:.04em;margin-right:8px}

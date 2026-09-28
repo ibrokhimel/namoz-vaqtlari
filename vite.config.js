@@ -14,6 +14,7 @@ export default defineConfig({
         tv: resolve(import.meta.dirname, 'tv.html'),
         index: resolve(import.meta.dirname, 'index.html'),
         settings: resolve(import.meta.dirname, 'settings.html'),
+        preview: resolve(import.meta.dirname, 'preview.html'),   // test page: every TV state at once
       },
     },
   },

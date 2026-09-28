@@ -4,7 +4,10 @@
 import {
   PRAYERS, CITIES, METHODS, ASR_METHODS, loadSettings, saveSettings, appNow,
   calcPrayerTimes, decimalToHHMM, decimalToDate, applyAdj, toHijri, getTimesForDate,
+  initSimulationFromURL,
 } from '../core/prayer.js';
+
+initSimulationFromURL();   // ?at=...&speed=... test mode
 import '../assets/fonts/fonts.css';
 import './style.css';
 

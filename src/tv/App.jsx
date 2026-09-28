@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ASR_METHODS, CITIES, METHODS, loadSettings } from '../core/prayer.js';
-import { dayPhase, getDayState } from '../core/day.js';
+import { ASR_METHODS, CITIES, METHODS, loadSettings, simulation } from '../core/prayer.js';
+import { dayPhase, fmtDayUz, getDayState, hhmm } from '../core/day.js';
 import { useBurnInShift, useNow, useStageScale } from './hooks.js';
 import TopBar from './TopBar.jsx';
 import Hero from './Hero.jsx';
@@ -54,6 +54,18 @@ export default function App() {
         </footer>
       </div>
       <SettingsPanel settings={settings} onChange={setSettings} now={now} />
+      <SimBadge now={now} />
+    </div>
+  );
+}
+
+// Test mode (?at=...): impossible to mistake for the real schedule
+function SimBadge({ now }) {
+  const sim = simulation();
+  if (!sim) return null;
+  return (
+    <div className="sim-badge" role="status">
+      <b>SINOV REJIMI</b> {fmtDayUz(now)} {now.getFullYear()} · {hhmm(now)}{sim.speed > 1 ? ` · ×${sim.speed}` : ''}
     </div>
   );
 }

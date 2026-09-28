@@ -1,10 +1,12 @@
 import { createRoot } from 'react-dom/client';
-import { CITIES, appNow, getTimesForDate, loadSettings } from '../core/prayer.js';
+import { CITIES, appNow, getTimesForDate, initSimulationFromURL, loadSettings } from '../core/prayer.js';
 import { dayPhase } from '../core/day.js';
 import '../assets/fonts/fonts.css';
 import './tv.css';
 import './settings.css';
 import App from './App.jsx';
+
+initSimulationFromURL();
 
 // Choose day/dusk/night before the first paint, so a TV switched on at
 // Bomdod never flashes the bright day palette in a dark hall.

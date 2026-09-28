@@ -25,7 +25,7 @@ export function FocusText({ text, className }) {
   const reduce = useReducedMotion();
   if (reduce) return <span className={className}>{text}</span>;
   return (
-    <BlurText text={text} className={`blur-text ${className || ''}`} animateBy="letters" direction="bottom"
+    <BlurText text={text} className={`blur-text ${className || ''}`} animateBy="letters" direction="bottom" animateOnMount
       delay={45} stepDuration={0.32}
       animationFrom={{ filter: 'blur(12px)', opacity: 0, y: 18 }}
       animationTo={[{ filter: 'blur(4px)', opacity: 0.6, y: -3 }, { filter: 'blur(0px)', opacity: 1, y: 0 }]}

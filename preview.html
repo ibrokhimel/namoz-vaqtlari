@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sinov — Namoz Vaqtlari TV</title>
+</head>
+<body>
+<header class="pv-head">
+  <div>
+    <h1>TV ekranini sinash</h1>
+    <p>Har bir holat jonli koʻrinishda. Vaqtlar saqlangan sozlamalardan hisoblanadi (<span id="pvCity">—</span>).</p>
+  </div>
+  <form class="pv-form" id="pvForm">
+    <label>Sana va vaqt <input type="datetime-local" id="pvAt" required></label>
+    <label>Tezlik
+      <select id="pvSpeed">
+        <option value="1">Oddiy (×1)</option>
+        <option value="60">1 daqiqa = 1 soniya (×60)</option>
+        <option value="600">Butun kun ≈ 2,5 daqiqa (×600)</option>
+      </select>
+    </label>
+    <button type="submit">Ochish</button>
+  </form>
+</header>
+<main class="pv-grid" id="pvGrid"></main>
+<script type="module" src="/src/preview/preview.js"></script>
+</body>
+</html>

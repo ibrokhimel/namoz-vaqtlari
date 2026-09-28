@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { appNow } from '../core/prayer.js';
+import { appNow, simulation } from '../core/prayer.js';
 
 // Tashkent wall time, updated once a second (aligned to the second so the
 // clock and countdown tick together).
@@ -7,8 +7,11 @@ export function useNow() {
   const [now, setNow] = useState(appNow);
   useEffect(() => {
     let t;
-    const tick = () => { setNow(appNow()); t = setTimeout(tick, 1000 - (Date.now() % 1000) + 5); };
-    t = setTimeout(tick, 1000 - (Date.now() % 1000) + 5);
+    const sim = simulation();
+    // real time: tick on the second; sped-up test mode: 5 ticks a second
+    const wait = () => (sim && sim.speed > 1 ? 200 : 1000 - (Date.now() % 1000) + 5);
+    const tick = () => { setNow(appNow()); t = setTimeout(tick, wait()); };
+    t = setTimeout(tick, wait());
     return () => clearTimeout(t);
   }, []);
   return now;

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { CITIES, DEFAULT_SETTINGS, appNow, decimalToDate, decimalToHHMM, getTimesForDate } from '../src/core/prayer.js';
+import { CITIES, DEFAULT_SETTINGS, appNow, decimalToDate, decimalToHHMM, getTimesForDate, initSimulationFromURL, parseWallTime, setSimulatedClock, simulation } from '../src/core/prayer.js';
 import { countdownParts, dayPhase, forDay, getDayState, isRamazon, makruhEnd } from '../src/core/day.js';
 
 const settings = { ...DEFAULT_SETTINGS, adjustments: { ...DEFAULT_SETTINGS.adjustments } };
@@ -84,5 +84,28 @@ describe('appNow', () => {
     vi.setSystemTime(new Date('2026-09-28T09:20:00Z'));   // 14:20 in Tashkent
     const n = appNow();
     expect([n.getHours(), n.getMinutes()]).toEqual([14, 20]);
+  });
+});
+
+describe('test mode (?at=...&speed=...)', () => {
+  afterEach(() => { setSimulatedClock(null); vi.useRealTimers(); });
+  it('parses wall times and rejects bad input', () => {
+    expect(parseWallTime('2027-02-15T17:00')).toEqual(new Date(2027, 1, 15, 17, 0));
+    expect(parseWallTime('2027-02-15')).toEqual(new Date(2027, 1, 15));
+    expect(parseWallTime('2027-02-30T10:00')).toBeNull();
+    expect(parseWallTime('tomorrow')).toBeNull();
+  });
+  it('starts the clock at ?at and runs it at ?speed', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-09-28T09:20:00Z'));
+    expect(initSimulationFromURL('?at=2027-02-15T17:00&speed=60')).toBe(true);
+    expect(simulation()).toEqual({ speed: 60 });
+    vi.advanceTimersByTime(10000);                       // 10 real seconds
+    const n = appNow();
+    expect([n.getHours(), n.getMinutes()]).toEqual([17, 10]);   // = 10 minutes later
+  });
+  it('a normal launch is never simulated', () => {
+    expect(initSimulationFromURL('')).toBe(false);
+    expect(simulation()).toBeNull();
   });
 });

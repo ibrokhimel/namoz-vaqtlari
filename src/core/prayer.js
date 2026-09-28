@@ -83,8 +83,39 @@ export function saveSettings(s) {
 export const CITY_UTC_OFFSET_MIN = 5 * 60;
 
 export function appNow() {
+  if (SIM) return new Date(SIM.at + (Date.now() - SIM.t0) * SIM.speed);
   const d = new Date();
   return new Date(d.getTime() + (CITY_UTC_OFFSET_MIN + d.getTimezoneOffset()) * 60000);
+}
+
+// ── TEST MODE ────────────────────────────────
+// ?at=2027-02-15T17:00 starts the clock at that Tashkent wall time, and
+// &speed=60 runs it 60x faster, so any day, Juma or Ramazon can be checked
+// without waiting. A normal launch (no ?at) is never affected.
+let SIM = null;
+
+export function setSimulatedClock(at, speed = 1) {
+  SIM = at ? { at: at.getTime(), t0: Date.now(), speed: Math.max(1, speed) } : null;
+}
+export function simulation() {
+  return SIM ? { speed: SIM.speed } : null;
+}
+
+// "2027-02-15T17:00" -> Date whose local fields read that wall time
+export function parseWallTime(s) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{1,2}):(\d{2})(?::(\d{2}))?)?$/.exec(s || '');
+  if (!m) return null;
+  const [, y, mo, d, h = 0, mi = 0, sec = 0] = m;
+  const date = new Date(+y, +mo - 1, +d, +h, +mi, +sec);
+  return Number.isNaN(date.getTime()) || date.getMonth() !== +mo - 1 ? null : date;
+}
+
+export function initSimulationFromURL(search = typeof location !== 'undefined' ? location.search : '') {
+  const q = new URLSearchParams(search);
+  const at = parseWallTime(q.get('at'));
+  const speed = Math.min(3600, Math.max(1, Number(q.get('speed')) || 1));
+  setSimulatedClock(at, speed);
+  return !!at;
 }
 
 // ──────────────────────────────────────────────
