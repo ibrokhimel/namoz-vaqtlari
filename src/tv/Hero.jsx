@@ -1,5 +1,6 @@
 import { RAMAZON_HERO, countdownParts, hhmm, isRamazon } from '../core/day.js';
 import Dial from './Dial.jsx';
+import { FocusText, RollingNumber } from './Motion.jsx';
 
 // The one thing the back row must read: announces a prayer for 5 minutes
 // after it begins ("vaqti kirdi"), otherwise shows the next prayer. The
@@ -28,7 +29,7 @@ export default function Hero({ now, st, settings }) {
           <div className="hero-note" id="heroNote">{makruh}</div>
         </div>
         <div className="hero-name">
-          <span className="hero-uz" id="heroName">{p.nameUz}</span>
+          <span className="hero-uz" id="heroName" aria-label={p.nameUz}><FocusText text={p.nameUz} /></span>
           <span className="hero-ar" id="heroAr" lang="ar" dir="rtl">{p.nameAr}</span>
         </div>
         <div className="hero-when">
@@ -39,7 +40,9 @@ export default function Hero({ now, st, settings }) {
       <div className="hero-dial">
         <Dial now={now} st={st} />
         <div className="dial-center">
-          <div className="dial-clock" id="liveClock">{hhmm(now)}</div>
+          <div className="dial-clock" id="liveClock" aria-label={hhmm(now)}>
+            <RollingNumber value={now.getHours()} digits={2} fontSize={48} /><span className="colon">:</span><RollingNumber value={now.getMinutes()} digits={2} fontSize={48} />
+          </div>
           <div className="dial-period">{periodName}</div>
         </div>
       </div>
@@ -58,7 +61,9 @@ function Countdown({ now, st, ramazon }) {
     body = 'Vaqtni hisoblab boʻlmadi';
   } else {
     const parts = countdownParts(st.next.date - now);
-    body = <>{parts.map(([n, unit], i) => <span key={unit}>{i > 0 && ' '}<b>{n}</b> {unit}</span>)} qoldi</>;
+    body = <>{parts.map(([n, unit], i) => (
+      <span key={unit}>{i > 0 && ' '}<b><RollingNumber value={Number(n)} digits={unit === 'soniya' ? 2 : String(Number(n)).length} fontSize={72} /></b> {unit}</span>
+    ))} qoldi</>;
   }
   return <div className="hero-countdown" id="heroCountdown">{body}</div>;
 }

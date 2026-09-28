@@ -248,7 +248,7 @@ html,body{
 
 /* Hero: a new prayer arrives with a soft rise and fade */
 .hero.enter .hero-text > *{animation:heroIn .9s var(--ease-out) backwards}
-.hero.enter .hero-text > :nth-child(2){animation-delay:.08s}
+.hero.enter .hero-text > .hero-name{animation:none}   /* the name has its own focus-in (BlurText) */
 .hero.enter .hero-text > :nth-child(3){animation-delay:.16s}
 @keyframes heroIn{from{opacity:0;transform:translateY(16px)}}
 
@@ -271,3 +271,14 @@ html,body{
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}
 }
+
+/* React Bits: BlurText letters need to be boxes to move; Counter rolls
+   inside a fixed-height window */
+.blur-text{display:inline-flex!important;margin:0}
+.blur-text > span{display:inline-block;will-change:transform,filter,opacity}
+.hero-countdown b .counter-counter,.dial-clock .counter-counter{line-height:1}
+/* Counter boxes its digits (height = font size, glyphs centred), so it has
+   no text baseline: sit the box on the baseline by hand */
+.hero-countdown b .counter-container{vertical-align:-0.16em}
+.dial-clock{display:flex;align-items:center;justify-content:center}
+.dial-clock .colon{padding:0 .04em;transform:translateY(-.06em)}
