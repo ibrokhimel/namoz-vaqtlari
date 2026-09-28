@@ -24,7 +24,7 @@ function updateMainPage() {
   const city     = CITIES[settings.city] || CITIES.Tashkent;
 
   // Info bar
-  const now    = new Date();
+  const now    = appNow();
   const days   = ['Yakshanba','Dushanba','Seshanba','Chorshanba','Payshanba','Juma','Shanba'];
   const months = ['Yanvar','Fevral','Mart','Aprel','May','Iyun','Iyul','Avgust','Sentabr','Oktabr','Noyabr','Dekabr'];
   const el = document.getElementById('dateDisplay');
@@ -84,7 +84,7 @@ function updateNextBanner(settings, city, now) {
 }
 
 function tickCountdown(settings, city) {
-  const now = new Date();
+  const now = appNow();
   if (!window._nextPrayerTime) { updateNextBanner(settings, city, now); return; }
 
   let diff = Math.max(0, window._nextPrayerTime - now);
@@ -114,7 +114,7 @@ function renderDualLists(settings, city, now) {
 }
 
 function buildPrayerList(listId, settings, city, refDate, isTomorrow) {
-  const now        = new Date();
+  const now        = appNow();
   const times      = getTimesForDate(refDate, settings, city);
   const adj        = settings.adjustments;
   const nowDecimal = now.getHours() + now.getMinutes()/60 + now.getSeconds()/3600;
@@ -241,7 +241,7 @@ function renderSettingsPage() {
 
   // Hijri adjustment controls
   function updateHijriPreview(adj) {
-    const now = new Date();
+    const now = appNow();
     const h = toHijri(now, adj);
     const valEl = document.getElementById('hijri_val');
     const preEl = document.getElementById('hijriPreview');

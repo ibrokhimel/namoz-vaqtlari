@@ -98,7 +98,7 @@ const pad2 = n => String(n).padStart(2,'0');
 const fmtDayUz = d => `${DAYS_UZ[d.getDay()]}, ${d.getDate()}-${MONTHS_UZ[d.getMonth()].toLowerCase()}`;
 
 function tickClock(){
-  const now=new Date();
+  const now=appNow();
   const settings=loadSettings();
   document.getElementById('liveClock').textContent=`${pad2(now.getHours())}:${pad2(now.getMinutes())}`;
   const h=toHijri(now, settings.hijriAdj||0);
@@ -124,8 +124,11 @@ function getDayState(now, settings, city){
 
   let next=today.find(p=>p.date>now);
   if(!next){
+    // first prayer of tomorrow that has a valid time (Bomdod unless the
+    // calculation returned NaN for it)
     const TT=getTimesForDate(tom,settings,city);
-    next={...PRAYERS_TV[0], date:at(TT.fajr,tom), tomorrow:true};
+    const p=PRAYERS_TV.find(p=>Number.isFinite(TT[p.key]))||PRAYERS_TV[0];
+    next={...p, date:at(TT[p.key],tom), tomorrow:true};
   }
   const started=today.filter(p=>p.date<=now);
   let current=started.length?started[started.length-1]:null;
@@ -138,13 +141,14 @@ function getDayState(now, settings, city){
     const YT=getTimesForDate(yes,settings,city);
     from=at(YT.isha,yes);
   }
+  if(!from) from=new Date(now.getFullYear(),now.getMonth(),now.getDate());
   return {T, sunrise, current, next, from, tom};
 }
 
 function renderTV(){
   const settings=loadSettings();
   const city=CITIES[settings.city]||CITIES.Tashkent;
-  const now=new Date();
+  const now=appNow();
   const st=getDayState(now,settings,city);
 
   document.getElementById('mosqueName').textContent   =settings.mosqueName   ||'Namoz Vaqtlari';
@@ -157,7 +161,8 @@ function renderTV(){
   document.getElementById('heroLabel').textContent = st.next.tomorrow ? 'Keyingi namoz · ertaga' : 'Keyingi namoz';
   document.getElementById('heroName').textContent  = st.next.nameUz;
   document.getElementById('heroAr').textContent    = st.next.nameAr;
-  document.getElementById('heroTime').textContent  = `${pad2(st.next.date.getHours())}:${pad2(st.next.date.getMinutes())}`;
+  document.getElementById('heroTime').textContent  = st.next.date
+    ? `${pad2(st.next.date.getHours())}:${pad2(st.next.date.getMinutes())}` : '--:--';
   window._tvState = st;
 
   // Today row: Bomdod, Quyosh, Peshin, Asr, Shom, Xufton
@@ -192,7 +197,9 @@ function renderTV(){
 function tickCountdown(){
   const st=window._tvState;
   if(!st)return;
-  const now=new Date();
+  const now=appNow();
+  const el=document.getElementById('heroCountdown');
+  if(!st.next.date){ el.textContent='Vaqtni hisoblab boʻlmadi'; return; }
   const ms=st.next.date-now;
   if(ms<=0){ renderTV(); return; }
   const totalS=Math.floor(ms/1000);
@@ -201,7 +208,6 @@ function tickCountdown(){
   if(totalS<600)      html=`<b>${m}</b> daqiqa <b>${pad2(s)}</b> soniya qoldi`;
   else if(h>0)        html=`<b>${h}</b> soat <b>${m}</b> daqiqa qoldi`;
   else                html=`<b>${m}</b> daqiqa qoldi`;
-  const el=document.getElementById('heroCountdown');
   if(el.innerHTML!==html) el.innerHTML=html;
 
   const span=st.next.date-st.from;
@@ -237,7 +243,7 @@ function drawCircle(){
   if(!canvas) return;
   const ctx  = canvas.getContext('2d');
   const cx   = 290, cy = 290, R = 266, r = 176;
-  const now  = new Date();
+  const now  = appNow();
   const settings = loadSettings();
   const city = CITIES[settings.city]||CITIES.Tashkent;
   const times = getTimesForDate(now, settings, city);
@@ -540,7 +546,7 @@ function buildLegend(){
   if(!leg || leg.children.length>0) return; // already built
   const settings = loadSettings();
   const city = CITIES[settings.city]||CITIES.Tashkent;
-  const now  = new Date();
+  const now  = appNow();
   const times = getTimesForDate(now, settings, city);
 
   // Zuho start/end
@@ -593,7 +599,7 @@ function buildDurationList(){
   if(!el || el.children.length>0) return;
   const settings = loadSettings();
   const city = CITIES[settings.city]||CITIES.Tashkent;
-  const now  = new Date();
+  const now  = appNow();
   const times = getTimesForDate(now, settings, city);
 
   const sunH = ((times.sunrise%24)+24)%24;
@@ -657,6 +663,9 @@ function updateLegendActive(curKey){
 function tickCircle(){
   if(currentPanel===1) drawCircle();
 }
+
+// Settings saved from another tab/window (e.g. settings.html) apply at once
+window.addEventListener('storage', e=>{ if(e.key==='prayerSettings'){ tickClock(); renderTV(); } });
 
 document.addEventListener('DOMContentLoaded',()=>{
   tickClock();

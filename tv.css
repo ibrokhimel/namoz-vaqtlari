@@ -127,12 +127,13 @@ html,body{
   border-bottom:1px solid var(--border);
   animation:fadeDown .8s ease both;
 }
-.mosque-block{display:flex;flex-direction:column;gap:var(--sp-3)}
+.mosque-block{display:flex;flex-direction:column;gap:var(--sp-3);min-width:0;max-width:58%}
 .mosque-arabic{
   font-family:var(--f-ar);
   font-size:var(--t-lead);color:var(--gold-lt);line-height:1.25;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
-.mosque-name{font-size:var(--t-small);font-weight:500;color:var(--text);line-height:1.1}
+.mosque-name{font-size:var(--t-small);font-weight:500;color:var(--text);line-height:1.1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .clock-block{display:flex;align-items:center;gap:var(--sp-5)}
 .live-clock{
   font-family:var(--f-num);font-size:var(--t-clock);font-weight:700;

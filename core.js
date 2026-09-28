@@ -67,7 +67,23 @@ function loadSettings() {
 }
 
 function saveSettings(s) {
-  localStorage.setItem('prayerSettings', JSON.stringify(s));
+  try { localStorage.setItem('prayerSettings', JSON.stringify(s)); return true; }
+  catch { return false; }  // storage full or blocked: keep running on defaults
+}
+
+// ──────────────────────────────────────────────
+// CLOCK
+// ──────────────────────────────────────────────
+// Every city is in Uzbekistan (UTC+5, no DST). A TV whose system time
+// zone is left at UTC would otherwise show a clock five hours off and
+// count down to the wrong moment. appNow() returns a Date whose *local*
+// fields (getHours, getDate...) read Tashkent wall time whatever the
+// device zone is, so all date math below can keep using local getters.
+const CITY_UTC_OFFSET_MIN = 5 * 60;
+
+function appNow() {
+  const d = new Date();
+  return new Date(d.getTime() + (CITY_UTC_OFFSET_MIN + d.getTimezoneOffset()) * 60000);
 }
 
 // ──────────────────────────────────────────────
@@ -101,7 +117,7 @@ function sunPosition(date) {
 function calcPrayerTimes(date, lat, lon, methodKey, asrKey) {
   const method = METHODS[methodKey] || METHODS.Karachi;
   const asr    = ASR_METHODS[asrKey] || ASR_METHODS.Hanafi;
-  const tz     = 5; // UTC+5 for Uzbekistan
+  const tz     = CITY_UTC_OFFSET_MIN / 60;
   const { sinDec, cosDec, EqT } = sunPosition(date);
 
   const transit = 12 + tz - lon / 15 - EqT;
@@ -138,22 +154,23 @@ function calcPrayerTimes(date, lat, lon, methodKey, asrKey) {
 // ──────────────────────────────────────────────
 // TIME FORMATTERS
 // ──────────────────────────────────────────────
+// Work in whole seconds so float error (16.3*60 = 977.9999...) never
+// turns 16:18 into 16:17.
 function decimalToHHMM(h) {
-  if (isNaN(h)) return '--:--';
-  h = ((h % 24) + 24) % 24;
-  const hh = Math.floor(h);
-  const mm = Math.floor((h - hh) * 60);
-  return `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;
+  if (!Number.isFinite(h)) return '--:--';
+  const m = Math.round((((h % 24) + 24) % 24) * 60) % 1440;
+  return `${String(Math.floor(m / 60)).padStart(2,'0')}:${String(m % 60).padStart(2,'0')}`;
 }
 
 function decimalToDate(h, referenceDate) {
-  if (isNaN(h)) return null;
-  h = ((h % 24) + 24) % 24;
-  const hh = Math.floor(h);
-  const mm = Math.floor((h - hh) * 60);
-  const ss = Math.floor(((h - hh) * 60 - mm) * 60);
-  return new Date(referenceDate.getFullYear(), referenceDate.getMonth(), referenceDate.getDate(), hh, mm, ss);
+  if (!Number.isFinite(h)) return null;
+  const s = Math.round((((h % 24) + 24) % 24) * 3600);
+  return new Date(referenceDate.getFullYear(), referenceDate.getMonth(), referenceDate.getDate(), 0, 0, s);
 }
+
+// Published timetables use whole minutes; round once, here, so the time
+// shown and the moment the countdown reaches zero are the same minute.
+const roundToMinute = h => Number.isFinite(h) ? Math.round(h * 60) / 60 : NaN;
 
 function applyAdj(decimalHour, minutesAdj) {
   return decimalHour + minutesAdj / 60;
@@ -210,11 +227,11 @@ function getTimesForDate(date, settings, city) {
   const raw = calcPrayerTimes(date, city.lat, city.lon, settings.method, settings.asrMethod);
   const adj = settings.adjustments;
   return {
-    fajr:    applyAdj(raw.fajr,    adj.fajr    || 0),
-    sunrise: raw.sunrise,
-    dhuhr:   applyAdj(raw.dhuhr,   adj.dhuhr   || 0),
-    asr:     applyAdj(raw.asr,     adj.asr     || 0),
-    maghrib: applyAdj(raw.maghrib, adj.maghrib || 0),
-    isha:    applyAdj(raw.isha,    adj.isha    || 0),
+    fajr:    roundToMinute(applyAdj(raw.fajr,    adj.fajr    || 0)),
+    sunrise: roundToMinute(raw.sunrise),
+    dhuhr:   roundToMinute(applyAdj(raw.dhuhr,   adj.dhuhr   || 0)),
+    asr:     roundToMinute(applyAdj(raw.asr,     adj.asr     || 0)),
+    maghrib: roundToMinute(applyAdj(raw.maghrib, adj.maghrib || 0)),
+    isha:    roundToMinute(applyAdj(raw.isha,    adj.isha    || 0)),
   };
 }

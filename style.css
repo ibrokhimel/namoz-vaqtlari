@@ -277,7 +277,7 @@ header {
   display: flex;
   align-items: center;
   margin-bottom: 6px;
-  animation: slideIn 0.5s var(--delay, 0s) ease both;
+  animation: slideIn 0.5s var(--delay, 0s) ease backwards;
 }
 
 .prayer-card.compact::before {
@@ -430,7 +430,7 @@ header {
   position: relative;
   overflow: hidden;
   transition: all 0.3s ease;
-  animation: slideIn 0.55s var(--delay, 0s) ease both;
+  animation: slideIn 0.55s var(--delay, 0s) ease backwards;
 }
 
 @keyframes slideIn {
