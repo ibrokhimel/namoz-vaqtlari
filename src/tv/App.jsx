@@ -7,6 +7,8 @@ import Hero from './Hero.jsx';
 import TodayRow from './TodayRow.jsx';
 import TomorrowLine from './TomorrowLine.jsx';
 import SettingsPanel from './SettingsPanel.jsx';
+import Sky from './sky/Sky.jsx';
+import { useWeather } from './useWeather.js';
 
 export default function App() {
   const now = useNow();
@@ -28,6 +30,9 @@ export default function App() {
 
   const phase = dayPhase(now, st.T);
   useEffect(() => { document.documentElement.dataset.phase = phase; }, [phase]);
+  const weather = useWeather(city, settings.weatherBg !== false);
+  const makruh = !!(st.makruhUntil && now < st.makruhUntil);
+  useEffect(() => { document.documentElement.dataset.weather = weather?.kind || 'none'; }, [weather?.kind]);
 
   // phase crossfades only after the first frame has painted directly
   useEffect(() => {
@@ -36,8 +41,9 @@ export default function App() {
 
   return (
     <div className="stage" id="stage" style={{ '--s': scale }}>
+      <Sky phase={phase} weather={weather} makruh={makruh} scale={scale} />
       <div className="layout" style={{ transform: shift }}>
-        <TopBar now={now} settings={settings} />
+        <TopBar now={now} settings={settings} weather={weather} phase={phase} />
         <main className="panel-days" id="main">
           <Hero now={now} st={st} settings={settings} />
           <TodayRow now={now} st={st} settings={settings} />

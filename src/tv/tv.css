@@ -9,12 +9,12 @@
   --bg:      oklch(0.975 0.006 235);
   --surface: oklch(0.93  0.022 225);  /* current prayer column           */
   --ink:     oklch(0.24  0.035 252);
-  --ink-2:   oklch(0.47  0.03  250);  /* secondary text, passed prayers  */
+  --ink-2:   oklch(0.44  0.03  250);  /* secondary text, passed prayers  */
   --line:    oklch(0.86  0.015 240);
   --line-2:  oklch(0.91  0.012 240);
-  --accent:  oklch(0.47  0.10  205);  /* turquoise: the next prayer      */
+  --accent:  oklch(0.43  0.10  205);  /* turquoise: the next prayer      */
   --mark:    oklch(0.40  0.13  258);  /* lapis: hero time, Arabic, now   */
-  --warn:    oklch(0.52  0.14  45);   /* terracotta: makruh notice       */
+  --warn:    oklch(0.46  0.15  38);   /* terracotta: makruh notice       */
   --panel:   oklch(0.995 0.003 235);  /* settings panel                  */
   --track:   oklch(0.90  0.012 240);  /* progress track                  */
   color-scheme: light;
@@ -40,7 +40,7 @@
   --bg:      oklch(0.14 0.02  258);
   --surface: oklch(0.19 0.028 258);
   --ink:     oklch(0.80 0.015 250);
-  --ink-2:   oklch(0.62 0.02  250);
+  --ink-2:   oklch(0.66 0.02  250);
   --line:    oklch(0.24 0.02  258);
   --line-2:  oklch(0.20 0.02  258);
   --accent:  oklch(0.72 0.09  195);
@@ -239,7 +239,7 @@ html,body{
   border-top:1px solid var(--line);
   font-size:var(--t-caption);color:var(--ink-2);line-height:1;
 }
-.footer .f-sep{color:var(--line);margin:0 var(--sp-3)}
+.footer .f-sep{color:var(--ink-2);margin:0 var(--sp-3)}
 .footer .f-credit{font-weight:500;letter-spacing:.08em}
 
 
@@ -291,3 +291,79 @@ html,body{
   font-size:var(--t-caption);font-weight:500;white-space:nowrap;
 }
 .sim-badge b{font-weight:700;letter-spacing:.04em;margin-right:8px}
+
+/* ── SKY: weather scene behind the screen ───────────────────
+   Gradients stay within a few lightness steps of the phase --bg,
+   so every text colour keeps its contrast (verified by sampling the
+   real pixels behind each text element in every phase x weather). */
+.sky{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.sky::before{content:'';position:absolute;inset:0;transition:background 3s ease}
+.sky-layer{position:absolute;inset:0;width:1920px;height:1080px}
+
+/* clouds and fog drift on the compositor: no repaint per frame */
+.cloud{position:absolute;left:0;background-size:100% 100%;will-change:transform;
+  animation:cloudDrift linear infinite}
+@keyframes cloudDrift{from{transform:translateX(-1200px)}to{transform:translateX(2000px)}}
+:root[data-phase="day"] .cloud{opacity:.85}
+:root[data-phase="dusk"] .cloud{opacity:.55}
+:root[data-phase="night"] .cloud,:root:not([data-phase]) .cloud{opacity:.6}
+.fog-band{position:absolute;left:0;width:1920px;height:280px;will-change:transform;
+  background:linear-gradient(180deg, transparent, color-mix(in oklab, var(--ink-2) 11%, transparent), transparent);
+  animation:fogDrift 23s ease-in-out infinite alternate}
+:root[data-phase="day"] .fog-band{background:linear-gradient(180deg, transparent, oklch(1 0 0 / .55), transparent)}
+@keyframes fogDrift{from{transform:translateY(-60px)}to{transform:translateY(60px)}}
+.twinkle{position:absolute;width:3px;height:3px;border-radius:50%;background:oklch(0.9 0.02 250);
+  opacity:.15;animation:twinkle ease-in-out infinite alternate}
+@keyframes twinkle{to{opacity:.55}}
+.lightning{position:absolute;inset:0;background:oklch(0.97 0.01 260);opacity:0;pointer-events:none}
+.lightning.on{animation:lightning .9s ease-out}
+@keyframes lightning{0%{opacity:0}8%{opacity:.08}20%{opacity:.02}30%{opacity:.06}100%{opacity:0}}
+:root[data-phase="day"] .lightning.on{animation-name:lightningDay}
+@keyframes lightningDay{0%{opacity:0}8%{opacity:.04}30%{opacity:.03}100%{opacity:0}}
+
+/* clear / partly: a lit sky at the top fading into the page */
+:root[data-phase="day"] .sky::before{background:
+  radial-gradient(60% 55% at 78% -8%, oklch(0.95 0.045 85 / .9), transparent 70%),
+  linear-gradient(180deg, oklch(0.93 0.03 232), var(--bg) 58%)}
+:root[data-phase="dusk"] .sky::before{background:
+  radial-gradient(90% 45% at 50% 112%, oklch(0.36 0.07 35 / .55), transparent 70%),
+  linear-gradient(180deg, oklch(0.31 0.06 268), var(--bg) 60%)}
+:root[data-phase="night"] .sky::before,:root:not([data-phase]) .sky::before{background:
+  linear-gradient(180deg, oklch(0.19 0.035 262), var(--bg) 62%)}
+
+/* overcast, rain, snow, fog, storm: flatter and greyer */
+:root[data-phase="day"][data-weather="cloudy"] .sky::before,
+:root[data-phase="day"][data-weather="rain"] .sky::before,
+:root[data-phase="day"][data-weather="drizzle"] .sky::before,
+:root[data-phase="day"][data-weather="thunder"] .sky::before,
+:root[data-phase="day"][data-weather="snow"] .sky::before,
+:root[data-phase="day"][data-weather="fog"] .sky::before{
+  background:linear-gradient(180deg, oklch(0.87 0.012 245), var(--bg) 62%)}
+:root[data-phase="dusk"][data-weather="cloudy"] .sky::before,
+:root[data-phase="dusk"][data-weather="rain"] .sky::before,
+:root[data-phase="dusk"][data-weather="drizzle"] .sky::before,
+:root[data-phase="dusk"][data-weather="thunder"] .sky::before,
+:root[data-phase="dusk"][data-weather="snow"] .sky::before,
+:root[data-phase="dusk"][data-weather="fog"] .sky::before{
+  background:linear-gradient(180deg, oklch(0.30 0.025 255), var(--bg) 62%)}
+:root[data-phase="night"][data-weather="cloudy"] .sky::before,
+:root[data-phase="night"][data-weather="rain"] .sky::before,
+:root[data-phase="night"][data-weather="drizzle"] .sky::before,
+:root[data-phase="night"][data-weather="thunder"] .sky::before,
+:root[data-phase="night"][data-weather="snow"] .sky::before,
+:root[data-phase="night"][data-weather="fog"] .sky::before{
+  background:linear-gradient(180deg, oklch(0.18 0.012 250), var(--bg) 62%)}
+
+/* Makruh: the whole screen warms towards red, gently */
+.makruh-veil{position:absolute;inset:0;opacity:0;transition:opacity 3s ease;
+  background:radial-gradient(120% 90% at 50% 40%, oklch(0.62 0.17 27), oklch(0.55 0.16 25))}
+.makruh-veil.on{opacity:.06}
+:root[data-phase="dusk"] .makruh-veil.on,:root[data-phase="night"] .makruh-veil.on{opacity:.14}
+
+/* ── WEATHER in the top bar ─────────────────────────────── */
+.topbar-right{display:flex;align-items:center;gap:var(--sp-7)}
+.weather{display:flex;align-items:center;gap:var(--sp-3);color:var(--ink)}
+.w-icon{width:48px;height:52px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.w-icon .fill{fill:currentColor;stroke:none}
+.w-temp{font-family:var(--f-num);font-size:3rem;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.w-label{font-size:var(--t-small);color:var(--ink-2);line-height:1.1;max-width:9em}

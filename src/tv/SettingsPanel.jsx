@@ -21,6 +21,8 @@ const ROWS = [
   { type: 'choice', key: 'city',      label: 'Shahar',          options: Object.keys(CITIES),      fmt: k => CITIES[k].name },
   { type: 'choice', key: 'method',    label: 'Hisoblash usuli', options: Object.keys(METHODS),     fmt: k => METHODS[k].name },
   { type: 'choice', key: 'asrMethod', label: 'Asr mazhabi',     options: Object.keys(ASR_METHODS), fmt: k => ASR_METHODS[k].name },
+  { type: 'choice', key: 'nextLeadMin', label: 'Keyingi namozga oʻtish', options: [10, 15, 20, 30, 45, 60], fmt: k => `${k} daq oldin` },
+  { type: 'choice', key: 'weatherBg', label: 'Ob-havo foni', options: [true, false], fmt: k => (k ? 'Yoqilgan' : 'Oʻchirilgan') },
   ...PRAYERS_TV.map(p => ({ type: 'adj', key: p.key, label: `${p.nameUz}: tuzatish`, min: -30, max: 30, unit: 'daq' })),
   { type: 'num',    key: 'hijriAdj', label: 'Hijriy sana', min: -3, max: 3, unit: 'kun' },
   { type: 'action', id: 'reset', label: 'Standart sozlamalarga qaytarish' },

@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { CITIES, DEFAULT_SETTINGS, appNow, decimalToDate, decimalToHHMM, getTimesForDate, initSimulationFromURL, parseWallTime, setSimulatedClock, simulation } from '../src/core/prayer.js';
-import { countdownParts, dayPhase, forDay, getDayState, isRamazon, makruhEnd } from '../src/core/day.js';
+import { countdownParts, dayPhase, forDay, getDayState, heroMode, isRamazon, makruhEnd } from '../src/core/day.js';
+import { fromWmo, weatherOverride } from '../src/core/weather.js';
 
 const settings = { ...DEFAULT_SETTINGS, adjustments: { ...DEFAULT_SETTINGS.adjustments } };
 const city = CITIES.Tashkent;
@@ -107,5 +108,44 @@ describe('test mode (?at=...&speed=...)', () => {
   it('a normal launch is never simulated', () => {
     expect(initSimulationFromURL('')).toBe(false);
     expect(simulation()).toBeNull();
+  });
+});
+
+describe('hero: current prayer first, next when it is close', () => {
+  const T = getTimesForDate(at(2026, 9, 28, 12), settings, city);
+  const d = k => decimalToDate(T[k], at(2026, 9, 28, 0));
+  const mode = (now, lead = 30) => heroMode(getDayState(now, settings, city), now, lead);
+  it('shows the current prayer while the next is far away', () => {
+    expect(mode(new Date(+d('asr') + 40 * 60000))).toBe('current');
+  });
+  it('switches to the next prayer inside the lead time', () => {
+    expect(mode(new Date(+d('maghrib') - 25 * 60000))).toBe('next');
+    expect(mode(new Date(+d('maghrib') - 25 * 60000), 15)).toBe('current');
+  });
+  it('Bomdod stays current until sunrise, then the next prayer', () => {
+    const st = getDayState(new Date(+d('sunrise') - 20 * 60000), settings, city);
+    expect(st.current.key).toBe('fajr');
+    expect(+st.current.endsAt).toBe(+d('sunrise'));
+    expect(heroMode(st, new Date(+d('sunrise') - 20 * 60000), 30)).toBe('current');
+    expect(mode(new Date(+d('sunrise') + 60 * 60000))).toBe('next');
+  });
+  it('before Bomdod, yesterday Xufton is still current', () => {
+    const st = getDayState(at(2026, 9, 28, 3, 0), settings, city);
+    expect(st.current).toMatchObject({ key: 'isha', yesterday: true });
+    expect(+st.current.endsAt).toBe(+d('fajr'));
+  });
+});
+
+describe('weather', () => {
+  it('maps WMO codes', () => {
+    expect(fromWmo(0).kind).toBe('clear');
+    expect(fromWmo(3).kind).toBe('cloudy');
+    expect(fromWmo(65)).toEqual({ kind: 'rain', intensity: 3 });
+    expect(fromWmo(73).kind).toBe('snow');
+    expect(fromWmo(95).kind).toBe('thunder');
+  });
+  it('?weather= forces a sky, anything else is ignored', () => {
+    expect(weatherOverride('?weather=rain&temp=8')).toMatchObject({ kind: 'rain', temp: 8, forced: true });
+    expect(weatherOverride('?weather=tornado')).toBeNull();
   });
 });

@@ -58,8 +58,12 @@ export function makruhEnd(now, T) {
 //           Peshin, and before Bomdod, when no prayer of *today* is current)
 //  next:    the next prayer to start (tomorrow's Bomdod after Xufton)
 //  started: current prayer if it began less than STARTED_MS ago
+//  current.endsAt: when its time runs out (Bomdod at sunrise, the others
+//           at the next prayer); before Bomdod, yesterday's Xufton is still
+//           current (flag: yesterday)
 export function getDayState(now, settings, city) {
   const tom = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+  const yes = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
   const T = getTimesForDate(now, settings, city);
   const at = (t, ref) => decimalToDate(t, ref);
   const today = PRAYERS_TV.map(p => ({ ...forDay(p, now), date: at(T[p.key], now) })).filter(p => p.date);
@@ -75,6 +79,11 @@ export function getDayState(now, settings, city) {
   const begun = today.filter(p => p.date <= now);
   let current = begun.length ? begun[begun.length - 1] : null;
   if (current && current.key === 'fajr' && sunrise && now >= sunrise) current = null;
+  if (!current && !begun.length) {
+    const isha = at(getTimesForDate(yes, settings, city).isha, yes);
+    if (isha && isha <= now) current = { ...PRAYERS_TV[4], date: isha, yesterday: true };
+  }
+  if (current) current = { ...current, endsAt: current.key === 'fajr' ? sunrise : next.date };
 
   const started = current && (now - current.date) < STARTED_MS ? current : null;
   return {
@@ -82,6 +91,19 @@ export function getDayState(now, settings, city) {
     startedUntil: started ? new Date(+started.date + STARTED_MS) : null,
     makruhUntil: makruhEnd(now, T),
   };
+}
+
+// What the hero shows. The prayer whose time it is now stays on screen
+// until the next one is close (settings.nextLeadMin before it), then the
+// next prayer and its countdown take over. Bomdod stays until sunrise:
+// its time ends there, not at Peshin. With no current prayer (sunrise to
+// Peshin) the hero shows the next prayer.
+export function heroMode(st, now, leadMin = 30) {
+  const c = st.current;
+  if (!c) return 'next';
+  const endsAtNext = c.endsAt && st.next.date && +c.endsAt === +st.next.date;
+  if (endsAtNext && st.next.date - now <= leadMin * 60000) return 'next';
+  return 'current';
 }
 
 // Screen phase follows the sun: day (sunrise -> Shom), dusk (Bomdod ->

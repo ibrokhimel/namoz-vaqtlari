@@ -40,21 +40,29 @@ const SCENARIOS = [
   ['Ramazon · iftorgacha', 'Iftorlik, saharlik belgilari', shift(timeOf(ramazon, 'maghrib'), -40)],
   ['Ramazon · saharlik', 'Saharlik tugashiga', shift(timeOf(ramazon, 'fajr'), -30)],
   ['Butun kun ×600', 'Yarim tundan boshlab, tez', today, 600],
+  ['Hozirgi namoz', 'Asr vaqti davom etmoqda', shift(timeOf(weekday, 'asr'), 40)],
+  ['Keyingisiga oʻtish', 'Shomgacha 30 daqiqadan kam', shift(timeOf(weekday, 'maghrib'), -25)],
+  ['Tun · yomgʻir', 'Ob-havo foni', shift(timeOf(weekday, 'isha'), 90), 1, 'weather=rain&intensity=3&temp=9'],
+  ['Kunduz · qor', 'Ob-havo foni', shift(timeOf(weekday, 'asr'), 30), 1, 'weather=snow&temp=-3'],
+  ['Kunduz · bulutli + makruh', 'Qizgʻish fon', shift(timeOf(weekday, 'dhuhr'), -8), 1, 'weather=cloudy&temp=14'],
+  ['Kechqurun · tuman', 'Ob-havo foni', shift(timeOf(weekday, 'maghrib'), 30), 1, 'weather=fog&temp=6'],
+  ['Tun · momaqaldiroq', 'Ob-havo foni', shift(timeOf(weekday, 'fajr'), -60), 1, 'weather=thunder&temp=17'],
+  ['Tun · ochiq osmon', 'Yulduzlar', shift(timeOf(weekday, 'isha'), 150), 1, 'weather=clear&temp=11'],
 ];
 
 const iso = d => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}T${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
-const url = (d, speed = 1) => `tv.html?at=${iso(d)}${speed > 1 ? `&speed=${speed}` : ''}`;
+const url = (d, speed = 1, extra = '') => `tv.html?at=${iso(d)}${speed > 1 ? `&speed=${speed}` : ''}${extra ? `&${extra}` : ''}`;
 const label = d => `${pad2(d.getDate())}.${pad2(d.getMonth() + 1)}.${d.getFullYear()} · ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
 
 document.getElementById('pvCity').textContent = city.name;
-document.getElementById('pvGrid').innerHTML = SCENARIOS.filter(([, , d]) => d).map(([title, sub, d, speed = 1]) => `
+document.getElementById('pvGrid').innerHTML = SCENARIOS.filter(([, , d]) => d).map(([title, sub, d, speed = 1, extra = '']) => `
   <article class="pv-card">
-    <div class="pv-frame"><iframe src="${url(d, speed)}" title="${title}" loading="lazy" tabindex="-1"></iframe></div>
+    <div class="pv-frame"><iframe src="${url(d, speed, extra)}" title="${title}" loading="lazy" tabindex="-1"></iframe></div>
     <div class="pv-meta">
       <div><h2>${title}</h2><p>${sub} · ${label(d)}</p></div>
       <div class="pv-links">
-        <a href="${url(d, speed)}" target="_blank">Toʻliq</a>
-        ${speed === 1 ? `<a href="${url(d, 60)}" target="_blank">×60</a>` : ''}
+        <a href="${url(d, speed, extra)}" target="_blank">Toʻliq</a>
+        ${speed === 1 ? `<a href="${url(d, 60, extra)}" target="_blank">×60</a>` : ''}
       </div>
     </div>
   </article>`).join('');
@@ -64,5 +72,6 @@ const pvSpeed = document.getElementById('pvSpeed');
 at.value = iso(new Date());
 document.getElementById('pvForm').addEventListener('submit', e => {
   e.preventDefault();
-  window.open(`tv.html?at=${at.value}${+pvSpeed.value > 1 ? `&speed=${pvSpeed.value}` : ''}`, '_blank');
+  const wx = document.getElementById('pvWeather').value;
+  window.open(`tv.html?at=${at.value}${+pvSpeed.value > 1 ? `&speed=${pvSpeed.value}` : ''}${wx ? `&weather=${wx}` : ''}`, '_blank');
 });

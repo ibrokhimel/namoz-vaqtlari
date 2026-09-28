@@ -11,7 +11,7 @@ export default function TodayRow({ now, st, settings }) {
       {COLS.map(c => {
         const q = forDay(c, now);
         const d = decimalToDate(st.T[q.key], now);
-        const isCur = !q.sun && st.current && st.current.key === q.key;
+        const isCur = !q.sun && st.current && !st.current.yesterday && st.current.key === q.key;
         const isNext = !q.sun && !st.next.tomorrow && st.next.key === q.key;
         const isPast = !isCur && !isNext && d && d <= now;
         const cls = ['t-col', q.sun && 'sun', isCur && 'current', isNext && 'next', isPast && 'passed'].filter(Boolean).join(' ');

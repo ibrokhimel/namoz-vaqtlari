@@ -53,6 +53,8 @@ export const DEFAULT_SETTINGS = {
   mosqueName:  '',
   mosqueArabic: '',
   hijriAdj:    0,
+  nextLeadMin: 30,     // TV: switch the hero to the next prayer this many minutes before it
+  weatherBg:   true,   // TV: weather scene behind the times
   adjustments: { fajr: 0, dhuhr: 0, asr: 0, maghrib: 0, isha: 0 },
 };
 
