@@ -336,8 +336,8 @@ html,body{
 /* Makruh: the whole screen warms towards red, gently */
 .makruh-veil{position:absolute;inset:0;opacity:0;transition:opacity 3s ease;
   background:radial-gradient(120% 90% at 50% 40%, oklch(0.62 0.17 27), oklch(0.55 0.16 25))}
-.makruh-veil.on{opacity:.06}
-:root[data-phase="dusk"] .makruh-veil.on,:root[data-phase="night"] .makruh-veil.on{opacity:.14}
+.makruh-veil.on{opacity:.11}
+:root[data-phase="dusk"] .makruh-veil.on,:root[data-phase="night"] .makruh-veil.on{opacity:.22}
 
 /* ── WEATHER in the top bar ─────────────────────────────── */
 .topbar-right{display:flex;align-items:center;gap:var(--sp-7)}
