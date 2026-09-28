@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sozlamalar — Namoz Vaqtlari</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Sky background -->
+<div class="sky">
+  <div class="stars" id="stars"></div>
+  <div class="moon"></div>
+</div>
+<div class="geo-line left"></div>
+<div class="geo-line right"></div>
+
+<div class="settings-wrapper">
+
+  <!-- Header -->
+  <div class="settings-header">
+    <a href="index.html" class="back-btn" title="Orqaga">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </a>
+    <div>
+      <div class="settings-title">Sozlamalar</div>
+      <div class="settings-subtitle">Namoz Vaqtlari</div>
+    </div>
+  </div>
+
+  <!-- Section: Masjid -->
+  <div class="settings-section" style="--delay:0.1s">
+    <div class="section-label">🕌 Masjid Ma'lumotlari</div>
+    <div class="settings-card">
+      <div class="settings-row">
+        <div class="row-info">
+          <div class="row-label">Masjid nomi</div>
+          <div class="row-desc">TV ekranida ko'rsatiladigan nom</div>
+        </div>
+        <input class="s-input" id="mosqueInput" type="text" placeholder="Masalan: Xazrati Imom masjidi" maxlength="60">
+      </div>
+      <div class="settings-row">
+        <div class="row-info">
+          <div class="row-label">Arabcha nomi <span style="font-size:0.7rem;color:var(--text-soft)">(ixtiyoriy)</span></div>
+          <div class="row-desc">Arabcha xattotlik bilan ko'rsatiladi</div>
+        </div>
+        <input class="s-input" id="mosqueArabicInput" type="text" placeholder="مسجد" maxlength="40" dir="rtl">
+      </div>
+    </div>
+  </div>
+
+  <!-- Section: Joylashuv -->
+  <div class="settings-section" style="--delay:0.2s">
+    <div class="section-label">📍 Joylashuv</div>
+    <div class="settings-card">
+      <div class="settings-row">
+        <div class="row-info">
+          <div class="row-label">Shahar</div>
+          <div class="row-desc">Namoz vaqtlari hisoblash uchun shahar</div>
+        </div>
+        <select class="s-select" id="citySelect"></select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section: Hisoblash usuli -->
+  <div class="settings-section" style="--delay:0.2s">
+    <div class="section-label">🧮 Hisoblash Usuli</div>
+    <div class="settings-card">
+      <div class="settings-row">
+        <div class="row-info">
+          <div class="row-label">Bomdod va Xufton</div>
+          <div class="row-desc">Quyosh burchagi asosidagi usul</div>
+        </div>
+        <select class="s-select" id="methodSelect"></select>
+      </div>
+      <div class="settings-row">
+        <div class="row-info">
+          <div class="row-label">Asr Namozi</div>
+          <div class="row-desc">Soya koeffitsiyenti</div>
+        </div>
+        <select class="s-select" id="asrSelect"></select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section: Vaqt sozlamalari -->
+  <div class="settings-section" style="--delay:0.3s">
+    <div class="section-label">⏱ Vaqt Sozlamalari (±30 daqiqa)</div>
+    <div class="settings-card">
+
+      <!-- Fajr -->
+      <div class="settings-row">
+        <div class="row-info">
+          <div class="row-label">🌙 Bomdod (Fajr)</div>
+        </div>
+        <div class="adj-row">
+          <button class="adj-btn" id="adj_minus_fajr">−</button>
+          <span class="adj-value" id="adj_val_fajr">+0 daq</span>
+          <button class="adj-btn" id="adj_plus_fajr">+</button>
+        </div>
+      </div>
+
+      <!-- Dhuhr -->
+      <div class="settings-row">
+        <div class="row-info">
+          <div class="row-label">☀️ Peshin (Zuhr)</div>
+        </div>
+        <div class="adj-row">
+          <button class="adj-btn" id="adj_minus_dhuhr">−</button>
+          <span class="adj-value" id="adj_val_dhuhr">+0 daq</span>
+          <button class="adj-btn" id="adj_plus_dhuhr">+</button>
+        </div>
+      </div>
+
+      <!-- Asr -->
+      <div class="settings-row">
+        <div class="row-info">
+          <div class="row-label">🌤️ Asr</div>
+        </div>
+        <div class="adj-row">
+          <button class="adj-btn" id="adj_minus_asr">−</button>
+          <span class="adj-value" id="adj_val_asr">+0 daq</span>
+          <button class="adj-btn" id="adj_plus_asr">+</button>
+        </div>
+      </div>
+
+      <!-- Maghrib -->
+      <div class="settings-row">
+        <div class="row-info">
+          <div class="row-label">🌇 Shom (Mag'rib)</div>
+        </div>
+        <div class="adj-row">
+          <button class="adj-btn" id="adj_minus_maghrib">−</button>
+          <span class="adj-value" id="adj_val_maghrib">+0 daq</span>
+          <button class="adj-btn" id="adj_plus_maghrib">+</button>
+        </div>
+      </div>
+
+      <!-- Isha -->
+      <div class="settings-row">
+        <div class="row-info">
+          <div class="row-label">🌙 Xufton (Isha)</div>
+        </div>
+        <div class="adj-row">
+          <button class="adj-btn" id="adj_minus_isha">−</button>
+          <span class="adj-value" id="adj_val_isha">+0 daq</span>
+          <button class="adj-btn" id="adj_plus_isha">+</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="settings-section" style="--delay:0.4s">
+    <div class="section-label">🌙 Hijriy Sana Sozlamasi</div>
+    <div class="settings-card">
+      <div class="settings-row">
+        <div class="row-info">
+          <div class="row-label">Kunlar farqi (±3)</div>
+          <div class="row-sub">Hilol ko'rinishiga qarab moslashtiring</div>
+        </div>
+        <div class="adj-row">
+          <button class="adj-btn" id="hijri_minus">−</button>
+          <span class="adj-value" id="hijri_val">0 kun</span>
+          <button class="adj-btn" id="hijri_plus">+</button>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:10px;font-size:.8rem;opacity:.5;letter-spacing:1px" id="hijriPreview">—</div>
+    </div>
+  </div>
+
+  <!-- Save -->
+  <button class="save-btn" id="saveBtn">✓ &nbsp; Saqlash</button>
+
+</div>
+
+<!-- Toast notification -->
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
