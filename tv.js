@@ -241,6 +241,8 @@ window.addEventListener('storage', e=>{ if(e.key==='prayerSettings'){ tickClock(
 document.addEventListener('DOMContentLoaded',()=>{
   tickClock();
   renderTV();
+  // phase crossfades only from here on; the first frame paints directly
+  requestAnimationFrame(()=>requestAnimationFrame(()=>document.documentElement.classList.add('ready')));
   setInterval(tickClock,     1000);
   setInterval(tickCountdown, 1000);
   setInterval(renderTV,     60000);

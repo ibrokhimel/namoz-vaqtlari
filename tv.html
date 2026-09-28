@@ -7,6 +7,18 @@
 <link href="fonts/fonts.css" rel="stylesheet">
 <link rel="stylesheet" href="tv.css">
 <link rel="stylesheet" href="tv-settings.css">
+<script src="core.js"></script>
+<script src="tv.js"></script>
+<script>
+// Choose day/dusk/night before the first paint, so a TV switched on at
+// Bomdod never flashes the bright day palette in a dark hall.
+(function(){
+  try{
+    const s=loadSettings(), now=appNow();
+    document.documentElement.dataset.phase=dayPhase(now, getTimesForDate(now, s, CITIES[s.city]||CITIES.Tashkent));
+  }catch(e){ document.documentElement.dataset.phase='dusk'; }
+})();
+</script>
 </head>
 <body>
 <div class="stage" id="stage">
@@ -80,8 +92,6 @@
   window.addEventListener('resize', fitStage);
 })();
 </script>
-<script src="core.js"></script>
-<script src="tv.js"></script>
 <script src="tv-settings.js"></script>
 </body>
 </html>

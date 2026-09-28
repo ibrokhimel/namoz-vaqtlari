@@ -55,13 +55,13 @@
 .ts-action .ts-label{color:var(--ink-2)}
 
 .ts-input{
-  width:400px;height:48px;padding:0 var(--sp-3, 12px);
+  width:420px;height:48px;padding:0 var(--sp-3, 12px);text-align:right;
   font:inherit;color:var(--ink);
   background:transparent;border:1px solid transparent;border-radius:8px;outline:none;
   text-overflow:ellipsis;
 }
-.ts-input[dir="rtl"]{font-family:var(--f-ar)}
-.ts-input::placeholder{color:var(--ink-2)}
+.ts-input.ts-ar:not(:placeholder-shown){font-family:var(--f-ar)}
+.ts-input::placeholder{color:var(--ink)}
 
 /* Focus: inverted, unmistakable from across a room */
 .ts-row.focused{background:var(--ink);color:var(--bg)}
@@ -70,10 +70,20 @@
 .ts-row.focused .ts-input{color:var(--bg)}
 .ts-row.focused .ts-note{color:color-mix(in oklch, var(--bg) 75%, var(--ink))}
 .ts-row.focused .ts-arrow{color:var(--bg)}
-.ts-row.focused .ts-input::placeholder{color:color-mix(in oklch, var(--bg) 65%, var(--ink))}
+.ts-row.focused .ts-input::placeholder{color:var(--bg)}
 .ts-row.editing .ts-input{background:var(--bg);color:var(--ink);border-color:var(--accent);box-shadow:0 0 0 3px var(--accent)}
 
 @media (prefers-reduced-motion: reduce){
   .tv-settings,.tv-settings.open,.hold-hint,.hold-hint.holding{transition:none}
   .hold-hint.holding i{transition:background-size 2s steps(4)}
 }
+
+/* the Arabic name stays inside the value column */
+.ts-row.editing .ts-input{text-align:left}
+.ts-row.editing .ts-input.ts-ar{text-align:start}
+
+/* City / method: a new value waits for OK */
+.ts-pending{font-size:var(--t-caption);font-weight:500;color:var(--warn);white-space:nowrap}
+.ts-row.focused .ts-pending{color:var(--bg)}
+.ts-saved{font-size:var(--t-caption);color:var(--accent);margin-left:var(--sp-3, 12px)}
+.ts-row.focused .ts-saved{color:var(--bg);font-weight:700}

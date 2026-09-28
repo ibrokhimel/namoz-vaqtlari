@@ -4,7 +4,8 @@
 /* ─────────────────────────────────────────── */
 //
 //  Hold OK (Enter / DPAD_CENTER) for 2 s  → open
-//  ▲ ▼  move between rows      ◀ ▶  change value (saved at once)
+//  ▲ ▼  move between rows      ◀ ▶  change value (saved at once;
+//                               city and method wait for OK)
 //  OK   edit a text field (opens the TV keyboard) / run an action
 //  Back / Esc                  → close
 //
@@ -26,6 +27,8 @@
   ];
 
   let panel, list, holdBar, holdTimer = null, open = false, focus = 0, editing = null, confirmReset = false;
+  let pending = null;   // { row, value } a city/method choice not yet confirmed with OK
+  let savedRow = -1;    // row that shows a brief 'Saqlandi' after OK
 
   const signed = n => `${n > 0 ? '+' : ''}${n}`;
 
@@ -61,10 +64,13 @@
     switch(row.type){
       case 'text': {
         const v = s[row.key] || '';
-        return `<input class="ts-input" type="text" maxlength="${row.max}" ${row.rtl ? 'dir="rtl" lang="ar"' : ''}
-                  value="${v.replace(/"/g, '&quot;')}" placeholder="${row.placeholder}" readonly tabindex="-1">`;
+        return `<input class="ts-input${row.rtl ? ' ts-ar' : ''}" type="text" maxlength="${row.max}" ${row.rtl ? 'dir="auto" lang="ar"' : ''}
+                  value="${v.replace(/"/g, '&quot;')}" placeholder="— (boʻsh)" readonly tabindex="-1">`;
       }
-      case 'choice': return `<span class="ts-val">${row.fmt(s[row.key])}</span>`;
+      case 'choice': {
+        const p = pending && pending.row === row;
+        return `${p ? '<span class="ts-pending">OK — saqlash</span>' : ''}<span class="ts-val">${row.fmt(p ? pending.value : s[row.key])}</span>`;
+      }
       case 'adj':    return `<span class="ts-val">${signed(s.adjustments[row.key] || 0)} ${row.unit}</span><span class="ts-note">${adjustedTime(row.key)}</span>`;
       case 'num':    return `<span class="ts-val">${signed(s[row.key] || 0)} ${row.unit}</span>`;
       default:       return '';
@@ -79,7 +85,8 @@
       li.className = `ts-row ts-${row.type}${i === focus ? ' focused' : ''}`;
       const label = row.id === 'reset' && confirmReset ? 'Tasdiqlash uchun yana OK bosing' : row.label;
       const stepper = row.type === 'choice' || row.type === 'adj' || row.type === 'num';
-      li.innerHTML = `<span class="ts-label">${label}</span>
+      const saved = i === savedRow ? '<span class="ts-saved">Saqlandi</span>' : '';
+      li.innerHTML = `<span class="ts-label">${label}${saved}</span>
         <span class="ts-value">${stepper ? '<b class="ts-arrow">◀</b>' : ''}${valueHtml(row, s)}${stepper ? '<b class="ts-arrow">▶</b>' : ''}</span>`;
       list.appendChild(li);
     });
@@ -99,11 +106,14 @@
   function change(dir){
     const row = ROWS[focus];
     if (row.type === 'choice'){
-      save(s => {
-        const opts = row.options();
-        const i = Math.max(0, opts.indexOf(s[row.key]));
-        s[row.key] = opts[(i + dir + opts.length) % opts.length];
-      });
+      // preview only: city and method change every time on the mosque
+      // screen, so they take effect on OK, not on a stray arrow press
+      const opts = row.options();
+      const cur = pending && pending.row === row ? pending.value : loadSettings()[row.key];
+      const next = opts[(Math.max(0, opts.indexOf(cur)) + dir + opts.length) % opts.length];
+      pending = next === loadSettings()[row.key] ? null : { row, value: next };
+      savedRow = -1;
+      render();
     } else if (row.type === 'adj'){
       save(s => { s.adjustments[row.key] = Math.max(row.min, Math.min(row.max, (s.adjustments[row.key] || 0) + dir)); });
     } else if (row.type === 'num'){
@@ -114,6 +124,13 @@
   function activate(){
     const row = ROWS[focus];
     if (row.type === 'text') return startEdit();
+    if (row.type === 'choice'){
+      if (pending && pending.row === row){
+        const { value } = pending; pending = null; savedRow = focus;
+        save(s => { s[row.key] = value; });
+      }
+      return;
+    }
     if (row.id === 'close') return close();
     if (row.id === 'reset'){
       if (!confirmReset){ confirmReset = true; render(); return; }
@@ -148,7 +165,7 @@
 
   function close(){
     if (editing) endEdit(true);
-    open = false; confirmReset = false;
+    open = false; confirmReset = false; pending = null; savedRow = -1;
     panel.classList.remove('open');
   }
 
@@ -172,8 +189,8 @@
     }
     if (e.repeat && OK_KEYS.has(e.key)) return;   // still holding OK from opening
     const k = e.key;
-    if (k === 'ArrowDown')      { focus = Math.min(ROWS.length - 1, focus + 1); confirmReset = false; render(); }
-    else if (k === 'ArrowUp')   { focus = Math.max(0, focus - 1); confirmReset = false; render(); }
+    if (k === 'ArrowDown')      { focus = Math.min(ROWS.length - 1, focus + 1); confirmReset = false; pending = null; savedRow = -1; render(); }
+    else if (k === 'ArrowUp')   { focus = Math.max(0, focus - 1); confirmReset = false; pending = null; savedRow = -1; render(); }
     else if (k === 'ArrowRight') change(+1);
     else if (k === 'ArrowLeft')  change(-1);
     else if (OK_KEYS.has(k))     activate();

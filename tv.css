@@ -69,7 +69,6 @@
 html,body{
   width:100%;height:100%;overflow:hidden;
   background:var(--bg);font-family:var(--f-ui);
-  transition:background-color 3s ease, color 3s ease;
   color:var(--ink);-webkit-font-smoothing:antialiased;
 }
 
@@ -82,8 +81,9 @@ html,body{
   width:1920px;height:1080px;overflow:hidden;
   transform:translate(-50%,-50%) scale(var(--s,1));
   background:var(--bg);color:var(--ink);
-  transition:background-color 3s ease, color 3s ease;
 }
+/* the sun doesn't snap: 3 s crossfade between phases (after first paint) */
+.ready,.ready body,.ready .stage{transition:background-color 3s ease, color 3s ease}
 
 /* LAYOUT */
 .layout{
@@ -146,7 +146,7 @@ html,body{
 }
 .hero-progress{height:6px;border-radius:3px;background:var(--track);overflow:hidden;margin-top:var(--sp-2)}
 .hero-progress-fill{height:100%;background:var(--accent);transform-origin:left center;transform:scaleX(0)}
-.hero-foot{display:flex;align-items:baseline;justify-content:space-between;gap:var(--sp-6);margin-top:var(--sp-2)}
+.hero-foot{display:flex;align-items:baseline;justify-content:space-between;gap:var(--sp-6);margin-top:var(--sp-2);min-height:8.25rem}
 .hero-note{font-size:var(--t-lead);font-weight:500;color:var(--warn);line-height:1.1;text-align:right}
 .hero-note:empty{display:none}
 .hero-countdown{font-size:var(--t-word);font-weight:500;color:var(--ink-2);line-height:1.1}
@@ -169,7 +169,7 @@ html,body{
 .t-uz{font-size:var(--t-label);font-weight:700;color:var(--ink);line-height:1}
 .t-ar{font-family:var(--f-ar);font-size:var(--t-small);color:var(--mark);line-height:1}
 .t-time{font-family:var(--f-num);font-size:var(--t-time);font-weight:700;color:var(--ink);line-height:1;font-variant-numeric:tabular-nums}
-.t-state{font-size:var(--t-caption);font-weight:500;line-height:1;min-height:1em;color:var(--ink-2)}
+.t-state{font-size:var(--t-label);font-weight:700;line-height:1;min-height:1em;color:var(--ink-2)}
 
 /* sunrise: not a prayer; the end of Bomdod time */
 .t-col.sun .t-uz{font-weight:500;color:var(--ink-2)}
@@ -177,9 +177,8 @@ html,body{
 
 /* states */
 .t-col.passed .t-uz,.t-col.passed .t-time,.t-col.passed .t-ar{color:var(--ink-2)}
-.t-col.current{background:var(--surface)}
-.t-col.current .t-time{color:var(--mark)}
-.t-col.current .t-state{color:var(--mark)}
+.t-col.current{background:var(--ink)}
+.t-col.current .t-uz,.t-col.current .t-ar,.t-col.current .t-time,.t-col.current .t-state{color:var(--bg)}
 .t-col.next .t-time{color:var(--accent)}
 .t-col.next .t-state{color:var(--accent)}
 .t-col.next::after{
