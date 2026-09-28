@@ -94,117 +94,118 @@ function drawMoonPhase(day){
   svg.innerHTML = glowCircle + bg + path + dayTxt;
 }
 
+const pad2 = n => String(n).padStart(2,'0');
+const fmtDayUz = d => `${DAYS_UZ[d.getDay()]}, ${d.getDate()}-${MONTHS_UZ[d.getMonth()].toLowerCase()}`;
+
 function tickClock(){
   const now=new Date();
   const settings=loadSettings();
-  document.getElementById('liveClock').textContent=
-    `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+  document.getElementById('liveClock').textContent=`${pad2(now.getHours())}:${pad2(now.getMinutes())}`;
   const h=toHijri(now, settings.hijriAdj||0);
-  document.getElementById('liveDate').textContent=
-    `${DAYS_UZ[now.getDay()]} · ${now.getDate()} ${MONTHS_UZ[now.getMonth()]} ${now.getFullYear()} · ${h.d} ${h.mName} ${h.y}`;
+  document.getElementById('liveDate').textContent=`${fmtDayUz(now)} ${now.getFullYear()}`;
+  document.getElementById('liveHijri').textContent=`${h.d} ${h.mName} ${h.y}`;
   drawMoonPhase(h.d);
   const mnEl=document.getElementById('moonCornerLabel');
   if(mnEl) mnEl.textContent=h.mName+'\n'+h.y;
 }
 
-function buildCards(containerId,times,refDate,now,isToday){
-  const c=document.getElementById(containerId);
-  if(!c)return;c.innerHTML='';
+// Where are we in the day? Works on real Date objects, not decimal hours.
+//  current: prayer whose time is running now (null between sunrise and
+//           Peshin, and before Bomdod, when no prayer of *today* is current)
+//  next:    the next prayer to start (tomorrow's Bomdod after Xufton)
+//  from:    start of the interval the progress bar measures
+function getDayState(now, settings, city){
+  const tom=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1);
+  const yes=new Date(now.getFullYear(),now.getMonth(),now.getDate()-1);
+  const T =getTimesForDate(now,settings,city);
+  const at=(t,ref)=>decimalToDate(t,ref);
+  const today=PRAYERS_TV.map(p=>({...p, date:at(T[p.key],now)})).filter(p=>p.date);
+  const sunrise=at(T.sunrise,now);
 
-  const nowDec  = now.getHours() + now.getMinutes()/60 + now.getSeconds()/3600;
-  const sunH    = ((times.sunrise%24)+24)%24;
-  const dhuhrH  = ((times.dhuhr%24)+24)%24;
-  const isZuho  = isToday && nowDec >= sunH + 15/60 && nowDec < dhuhrH;
-
-  let currentKey=null, nextKey=null;
-  if(isToday){
-    if(isZuho){
-      // Zuho vaqtida: hech qaysi namoz "hozirgi" emas, peshin "keyingi"
-      currentKey = null;
-      nextKey = 'dhuhr';
-    } else {
-      for(let i=PRAYERS_TV.length-1;i>=0;i--){
-        const ph=((times[PRAYERS_TV[i].key]%24)+24)%24;
-        if(nowDec >= ph){currentKey=PRAYERS_TV[i].key;break;}
-      }
-    }
+  let next=today.find(p=>p.date>now);
+  if(!next){
+    const TT=getTimesForDate(tom,settings,city);
+    next={...PRAYERS_TV[0], date:at(TT.fajr,tom), tomorrow:true};
   }
+  const started=today.filter(p=>p.date<=now);
+  let current=started.length?started[started.length-1]:null;
+  if(current && current.key==='fajr' && sunrise && now>=sunrise) current=null;
 
-  PRAYERS_TV.forEach((p,i)=>{
-    const adj=(loadSettings().adjustments[p.key]||0);
-    const ph=((times[p.key]%24)+24)%24;
-    const isActive=isToday&&p.key===currentKey;
-    const isNext  =isToday&&p.key===nextKey;
-    const isPassed=isToday&&!isActive&&!isNext&&nowDec>ph;
-
-    const card=document.createElement('div');
-    card.className=`pcard${isActive?' active':''}${isNext?' next-prayer':''}${isPassed?' passed':''}`;
-    card.style.setProperty('--dl',`${0.15+i*.1}s`);
-
-    const adjHtml=adj!==0?`<div class="c-adj">${adj>0?'+':''}${adj} daq</div>`:'';
-    const ribbon = isActive
-      ? '<div class="active-ribbon">✦ HOZIRGI NAMOZ ✦</div>'
-      : isNext
-        ? '<div class="active-ribbon next-ribbon">⟩ KEYINGI NAMOZ ⟨</div>'
-        : '';
-    card.innerHTML=`
-      ${ribbon}
-      <div class="c-icon">${p.icon}</div>
-      <div class="c-ar">${p.nameAr}</div>
-      <div class="c-uz">${p.nameUz}</div>
-      <div class="c-time">${decimalToHHMM(times[p.key])}</div>
-      ${adjHtml}
-    `;
-    c.appendChild(card);
-  });
+  let from;
+  if(current) from=current.date;
+  else if(sunrise && now>=sunrise) from=sunrise;
+  else {
+    const YT=getTimesForDate(yes,settings,city);
+    from=at(YT.isha,yes);
+  }
+  return {T, sunrise, current, next, from, tom};
 }
 
 function renderTV(){
   const settings=loadSettings();
   const city=CITIES[settings.city]||CITIES.Tashkent;
   const now=new Date();
-  const tom=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1);
+  const st=getDayState(now,settings,city);
 
   document.getElementById('mosqueName').textContent   =settings.mosqueName   ||'Namoz Vaqtlari';
   document.getElementById('mosqueArabic').textContent =settings.mosqueArabic ||'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيم';
   document.getElementById('cityFooter').textContent   =city.name;
   document.getElementById('methodFooter').textContent =(METHODS[settings.method]||METHODS.Karachi).name;
-  document.getElementById('todayDate').textContent    =`${DAYS_UZ[now.getDay()]}, ${now.getDate()} ${MONTHS_UZ[now.getMonth()]}`;
-  document.getElementById('tomorrowDate').textContent =`${DAYS_UZ[tom.getDay()]}, ${tom.getDate()} ${MONTHS_UZ[tom.getMonth()]}`;
 
-  const todayT  =getTimesForDate(now,settings,city);
-  const tomorrowT=getTimesForDate(tom,settings,city);
+  // Hero
+  document.getElementById('heroLabel').textContent = st.next.tomorrow ? 'Keyingi namoz · ertaga' : 'Keyingi namoz';
+  document.getElementById('heroName').textContent  = st.next.nameUz;
+  document.getElementById('heroAr').textContent    = st.next.nameAr;
+  document.getElementById('heroTime').textContent  = `${pad2(st.next.date.getHours())}:${pad2(st.next.date.getMinutes())}`;
+  window._tvState = st;
 
-  document.getElementById('todaySun').innerHTML   =`🌅 <span>Quyosh:</span> ${decimalToHHMM(todayT.sunrise)}`;
-  document.getElementById('tomorrowSun').innerHTML=`🌅 <span>Quyosh:</span> ${decimalToHHMM(tomorrowT.sunrise)}`;
+  // Today row: Bomdod, Quyosh, Peshin, Asr, Shom, Xufton
+  const row=document.getElementById('todayRow');
+  row.innerHTML='';
+  const cols=[PRAYERS_TV[0], {key:'sunrise', nameUz:'Quyosh', nameAr:'الشروق', sun:true}, ...PRAYERS_TV.slice(1)];
+  cols.forEach(p=>{
+    const d=decimalToDate(st.T[p.key],now);
+    const isCur =!p.sun && st.current && st.current.key===p.key;
+    const isNext=!p.sun && !st.next.tomorrow && st.next.key===p.key;
+    const isPast=!isCur && !isNext && d && d<=now;
+    const col=document.createElement('div');
+    col.className=`t-col${p.sun?' sun':''}${isCur?' current':''}${isNext?' next':''}${isPast?' passed':''}`;
+    const state=isCur?'Hozir':isNext?'Keyingi':'';
+    col.innerHTML=`
+      <div class="t-head"><span class="t-uz">${p.nameUz}</span>${p.sun?'':`<span class="t-ar" lang="ar">${p.nameAr}</span>`}</div>
+      <div class="t-time">${decimalToHHMM(st.T[p.key])}</div>
+      <div class="t-state">${state}</div>`;
+    row.appendChild(col);
+  });
 
-  // Next prayer — decimal hours comparison
-  const nowDec = now.getHours() + now.getMinutes()/60 + now.getSeconds()/3600;
-  let nextP=null, nextTime=null;
-  for(const p of PRAYERS_TV){
-    const ph = ((todayT[p.key]%24)+24)%24;
-    if(nowDec < ph){ nextP=p; nextTime=decimalToDate(todayT[p.key],now); break; }
-  }
-  if(!nextP){
-    nextP=PRAYERS_TV[0];
-    nextTime=decimalToDate(tomorrowT.fajr,tom);
-  }
-  window._tvNextTime=nextTime;
-  document.getElementById('nextName').textContent=`${nextP.icon} ${nextP.nameUz}`;
+  // Tomorrow: one line
+  const TT=getTimesForDate(st.tom,settings,city);
+  const items=[['Bomdod','fajr'],['Quyosh','sunrise'],['Peshin','dhuhr'],['Asr','asr'],['Shom','maghrib'],['Xufton','isha']]
+    .map(([n,k])=>`<span class="tl-item">${n}<b>${decimalToHHMM(TT[k])}</b></span>`).join('');
+  document.getElementById('tomorrowLine').innerHTML=`<span class="tl-day">Ertaga, ${fmtDayUz(st.tom).split(', ')[1]}</span>${items}`;
 
-  buildCards('todayCards',   todayT,   now,now,true);
-  buildCards('tomorrowCards',tomorrowT,tom,now,false);
+  tickCountdown();
 }
 
+// Countdown: minutes while far away, seconds only in the last 10 minutes
 function tickCountdown(){
-  if(!window._tvNextTime)return;
-  let diff=Math.max(0,window._tvNextTime-new Date());
-  const h=Math.floor(diff/3600000);diff-=h*3600000;
-  const m=Math.floor(diff/60000);diff-=m*60000;
-  const s=Math.floor(diff/1000);
-  document.getElementById('nextCountdown').textContent=
-    `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-  if(h===0&&m===0&&s===0)setTimeout(renderTV,1500);
+  const st=window._tvState;
+  if(!st)return;
+  const now=new Date();
+  const ms=st.next.date-now;
+  if(ms<=0){ renderTV(); return; }
+  const totalS=Math.floor(ms/1000);
+  const h=Math.floor(totalS/3600), m=Math.floor((totalS%3600)/60), s=totalS%60;
+  let html;
+  if(totalS<600)      html=`<b>${m}</b> daqiqa <b>${pad2(s)}</b> soniya qoldi`;
+  else if(h>0)        html=`<b>${h}</b> soat <b>${m}</b> daqiqa qoldi`;
+  else                html=`<b>${m}</b> daqiqa qoldi`;
+  const el=document.getElementById('heroCountdown');
+  if(el.innerHTML!==html) el.innerHTML=html;
+
+  const span=st.next.date-st.from;
+  const frac=span>0?Math.min(1,Math.max(0,(now-st.from)/span)):0;
+  document.getElementById('heroProgress').style.transform=`scaleX(${frac.toFixed(4)})`;
 }
 
 // ── PANEL SWITCHING ──────────────────────────
@@ -213,9 +214,7 @@ let currentPanel = 0;
 
 function switchPanel(idx){
   const panels = [document.getElementById('panel1'), document.getElementById('panel2')];
-  const dots   = [document.getElementById('dot1'),   document.getElementById('dot2')];
   panels.forEach((p,i)=>{ p.classList.toggle('visible', i===idx); });
-  dots.forEach((d,i)=>{ d.classList.toggle('on', i===idx); });
   currentPanel = idx;
   if(idx===1){ buildLegend(); buildDurationList(); drawCircle(); }
 }

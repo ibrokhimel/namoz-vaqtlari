@@ -82,7 +82,7 @@ html,body{
   position:relative;z-index:3;
   width:1920px;height:1080px;
   display:grid;
-  grid-template-rows:128px minmax(0,1fr) 40px;
+  grid-template-rows:112px minmax(0,1fr) 40px;
   /* TV overscan-safe area: 5% of each edge (Android TV: 48dp x 27dp) */
   padding:54px 96px;
 }
@@ -99,134 +99,112 @@ html,body{
 }
 .panel.visible{opacity:1;pointer-events:all}
 
-/* PANEL 1: two day rows */
-.panel-days{
-  display:grid;
-  grid-template-rows:1fr 6px 1fr;
-  gap:0;
-  height:100%;
+/* SPACING SCALE (4pt) */
+.layout{
+  --sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:24px;
+  --sp-6:32px;--sp-7:48px;--sp-8:64px;--sp-9:96px;
 }
 
-
-/* HEADER */
-.header{
+/* TOP STRIP ─ mosque identity (left) + wall clock (right) */
+.topbar{
   display:flex;align-items:center;justify-content:space-between;
   border-bottom:1px solid var(--border);
   animation:fadeDown .8s ease both;
 }
-.mosque-block{display:flex;flex-direction:column;gap:3px;min-width:460px}
+.mosque-block{display:flex;flex-direction:column;gap:var(--sp-2)}
 .mosque-arabic{
   font-family:'Scheherazade New','Amiri',serif;
-  font-size:2rem;color:var(--gold-lt);line-height:1;
-  text-shadow:0 0 22px rgba(201,168,76,.5);
+  font-size:2.75rem;color:var(--gold-lt);line-height:1;
 }
-.mosque-name{font-size:1.15rem;font-weight:500;color:var(--text);letter-spacing:2px}
-.clock-block{text-align:center;display:flex;flex-direction:column;align-items:center;gap:1px}
+.mosque-name{font-size:1.75rem;font-weight:500;color:var(--text);line-height:1}
+.clock-block{display:flex;align-items:center;gap:var(--sp-5)}
 .live-clock{
-  font-family:'Amiri',serif;font-size:4.8rem;font-weight:700;
-  color:var(--gold-lt);letter-spacing:4px;line-height:1;
-  animation:clockGlow 2s ease-in-out infinite alternate;
+  font-family:'Amiri',serif;font-size:5rem;font-weight:700;
+  color:var(--text);line-height:1;font-variant-numeric:tabular-nums;
 }
-@keyframes clockGlow{
-  from{text-shadow:0 0 28px rgba(201,168,76,.4),0 0 56px rgba(201,168,76,.15)}
-  to  {text-shadow:0 0 48px rgba(201,168,76,.7),0 0 96px rgba(201,168,76,.28)}
+.live-date{
+  display:flex;flex-direction:column;gap:var(--sp-1);
+  font-size:1.5rem;color:var(--soft);line-height:1.2;
 }
-.live-date{font-size:.9rem;color:var(--soft);letter-spacing:4px;text-transform:uppercase;font-weight:300}
-.next-block{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:3px;min-width:360px}
-.next-lbl{font-size:.68rem;letter-spacing:5px;text-transform:uppercase;color:var(--teal);
-  display:flex;align-items:center;gap:8px;justify-content:flex-end}
-.ndot{width:7px;height:7px;border-radius:50%;background:var(--teal);
-  box-shadow:0 0 8px var(--teal);animation:blink 1s step-start infinite}
-@keyframes blink{50%{opacity:0}}
-.next-nm{font-size:1.35rem;font-weight:700;color:var(--gold-lt)}
-.next-cd{
-  font-family:'Amiri',serif;font-size:2.5rem;color:var(--teal);
-  text-shadow:0 0 18px rgba(45,212,191,.45);letter-spacing:2px;line-height:1;
-}
-.next-sub{font-size:.62rem;letter-spacing:3px;text-transform:uppercase;color:var(--soft)}
+.live-date #liveDate{color:var(--text)}
 
-/* DAY SECTION */
-.day-section{display:flex;flex-direction:column;padding:8px 0 6px}
-.day-label-row{display:flex;align-items:center;gap:14px;margin-bottom:10px;justify-content:space-between}
-.day-badge{display:flex;align-items:center;gap:12px;font-size:1.2rem;font-weight:700;letter-spacing:6px;text-transform:uppercase}
-.day-badge.today{color:var(--gold-lt);text-shadow:0 0 16px rgba(201,168,76,.45)}.day-badge.tomorrow{color:var(--soft)}
-.dbullet{width:11px;height:11px;border-radius:50%;background:var(--gold);box-shadow:0 0 10px var(--gold-gl)}
-.day-badge.tomorrow .dbullet{background:var(--soft);box-shadow:none}
-.day-date-txt{font-size:.88rem;color:var(--soft);letter-spacing:3px;margin-left:12px}
-.sun-strip{font-size:.78rem;color:var(--soft);letter-spacing:2px;opacity:.65}
-.sun-strip span{color:#f8c56a}
-
-/* CARDS ROW */
-.cards-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;flex:1}
-
-/* BASE CARD */
-.pcard{
-  background:var(--card);border:1px solid var(--bsoft);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:5px;position:relative;overflow:hidden;
-  transition:all .35s ease;cursor:default;
-  animation:riseUp .7s var(--dl,0s) ease both;
-}
-@keyframes riseUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
-.pcard::before{
-  content:'';position:absolute;top:0;left:15%;right:15%;height:2px;
-  background:linear-gradient(90deg,transparent,var(--gold),transparent);
-  transform:scaleX(0);transition:transform .35s ease;
+/* PANEL 1 ─ hero / today / tomorrow */
+.panel-days{
+  display:grid;
+  grid-template-rows:minmax(0,1fr) auto auto;
+  row-gap:var(--sp-6);
+  padding-top:var(--sp-6);
+  height:100%;
 }
 
-/* TODAY cards */
-.today .pcard{padding:16px 14px 20px;border-radius:20px}
-.today .pcard .c-icon{font-size:1.9rem}
-.today .pcard .c-ar{font-family:'Scheherazade New','Amiri',serif;font-size:1.75rem;color:var(--gold-lt);line-height:1}
-.today .pcard .c-uz{font-size:.75rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--soft)}
-.today .pcard .c-time{font-family:'Amiri',serif;font-size:3.5rem;font-weight:700;color:var(--text);line-height:1;letter-spacing:1px}
-.today .pcard .c-adj{font-size:.65rem;color:var(--teal);letter-spacing:1px}
-.today .pcard.active{
-  background:linear-gradient(150deg,rgba(201,168,76,.15),rgba(8,22,50,.95));
-  border-color:rgba(201,168,76,.55);
-  box-shadow:0 0 0 1px rgba(201,168,76,.28),0 6px 48px rgba(201,168,76,.22);
-  transform:translateY(-4px) scale(1.02);
+/* HERO ─ next prayer, readable from the back of the hall */
+.hero{display:flex;flex-direction:column;justify-content:center;gap:var(--sp-3);min-height:0}
+.hero-label{font-size:2.5rem;font-weight:500;color:var(--teal);line-height:1}
+.hero-main{display:flex;align-items:baseline;justify-content:space-between;gap:var(--sp-7)}
+.hero-name{display:flex;align-items:baseline;gap:var(--sp-6);min-width:0}
+.hero-uz{font-size:11rem;font-weight:700;color:var(--text);line-height:1;letter-spacing:-.01em}
+.hero-ar{font-family:'Scheherazade New','Amiri',serif;font-size:6rem;color:var(--gold-lt);line-height:1}
+.hero-time{
+  font-family:'Amiri',serif;font-size:11rem;font-weight:700;
+  color:var(--gold-lt);line-height:1;font-variant-numeric:tabular-nums;
 }
-.today .pcard.active::before{transform:scaleX(1)}
-.today .pcard.active .c-ar{color:var(--gold-lt)}
-.today .pcard.active .c-time{color:var(--gold-lt);text-shadow:0 0 22px rgba(201,168,76,.55)}
-.today .pcard.passed{opacity:.25}
+.hero-progress{height:6px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:var(--sp-2)}
+.hero-progress-fill{height:100%;background:var(--teal);transform-origin:left center;transform:scaleX(0)}
+.hero-countdown{font-size:3rem;font-weight:500;color:var(--soft);line-height:1.1;margin-top:var(--sp-2)}
+.hero-countdown b{font-family:'Amiri',serif;font-size:7.5rem;font-weight:700;color:var(--teal);font-variant-numeric:tabular-nums}
 
-/* TOMORROW cards */
-.tomorrow .pcard{padding:10px 12px 14px;border-radius:16px}
-.tomorrow .pcard .c-icon{font-size:1.25rem}
-.tomorrow .pcard .c-ar{font-family:'Scheherazade New','Amiri',serif;font-size:1.25rem;color:rgba(201,168,76,.55);line-height:1}
-.tomorrow .pcard .c-uz{font-size:.6rem;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--soft);opacity:.6}
-.tomorrow .pcard .c-time{font-family:'Amiri',serif;font-size:2.2rem;font-weight:700;color:rgba(232,220,200,.55);line-height:1}
-.tomorrow .pcard .c-adj{font-size:.58rem;color:var(--teal);opacity:.65}
+/* TODAY ─ one row of columns, no cards */
+.today-row{
+  display:grid;
+  grid-template-columns:1fr .72fr 1fr 1fr 1fr 1fr;
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+}
+.t-col{
+  display:flex;flex-direction:column;gap:var(--sp-2);
+  padding:var(--sp-5) var(--sp-5) var(--sp-5);
+  position:relative;
+}
+.t-col + .t-col{box-shadow:inset 1px 0 0 var(--bsoft)}
+.t-head{display:flex;align-items:baseline;justify-content:space-between;gap:var(--sp-3)}
+.t-uz{font-size:2.25rem;font-weight:700;color:var(--text);line-height:1}
+.t-ar{font-family:'Scheherazade New','Amiri',serif;font-size:2rem;color:var(--gold-lt);line-height:1}
+.t-time{font-family:'Amiri',serif;font-size:5.5rem;font-weight:700;color:var(--text);line-height:1;font-variant-numeric:tabular-nums}
+.t-state{font-size:1.5rem;font-weight:500;line-height:1;min-height:1em;color:var(--soft)}
 
-/* Active ribbon */
-.pcard.next-prayer{border-color:rgba(201,168,76,.5);background:rgba(201,168,76,.06)}
-.hijri-moon-row{display:flex;align-items:center;gap:8px;margin-top:6px}
-.hijri-month-name{font-family:'Amiri',serif;font-size:1rem;color:var(--gold-lt);letter-spacing:1px}
+/* sunrise: not a prayer; the end of Bomdod time */
+.t-col.sun .t-uz{font-weight:500;color:var(--soft)}
+.t-col.sun .t-time{font-size:4rem;color:var(--soft);height:5.5rem;display:flex;align-items:flex-end;padding-bottom:.35rem}
+
+/* states */
+.t-col.passed .t-uz,.t-col.passed .t-time,.t-col.passed .t-ar{color:var(--soft)}
+.t-col.current{background:rgba(201,168,76,.10)}
+.t-col.current .t-time{color:var(--gold-lt)}
+.t-col.current .t-state{color:var(--gold-lt)}
+.t-col.next .t-time{color:var(--teal)}
+.t-col.next .t-state{color:var(--teal)}
+.t-col.next::after{
+  content:'';position:absolute;left:0;right:0;bottom:-1px;height:4px;background:var(--teal);
+}
+
+/* TOMORROW ─ one quiet line */
+.tomorrow-line{
+  display:flex;align-items:baseline;gap:var(--sp-6);
+  font-size:1.75rem;color:var(--soft);line-height:1;white-space:nowrap;
+}
+.tomorrow-line .tl-day{font-weight:700;color:var(--text)}
+.tomorrow-line .tl-item b{font-family:'Amiri',serif;font-weight:700;color:var(--text);margin-left:var(--sp-2);font-variant-numeric:tabular-nums}
+
+/* PANEL 2 moon card */
 .moon-corner{
   position:absolute;top:18px;left:18px;z-index:10;
   display:flex;flex-direction:column;align-items:center;gap:6px;
   background:rgba(10,15,30,0.6);border:1px solid rgba(201,168,76,0.2);
-  border-radius:16px;padding:12px 14px;backdrop-filter:blur(6px);
+  border-radius:16px;padding:12px 14px;
 }
 .moon-corner-label{
   font-family:'Amiri',serif;font-size:.85rem;color:var(--gold-lt);
   letter-spacing:1px;text-align:center;line-height:1.4;
-}
-.next-ribbon{background:linear-gradient(90deg,transparent,rgba(201,168,76,.15),transparent);color:var(--gold-lt)!important;letter-spacing:3px}
-  position:absolute;bottom:0;left:0;right:0;
-  background:linear-gradient(90deg,transparent,rgba(201,168,76,.2),transparent);
-  border-top:1px solid rgba(201,168,76,.25);
-  text-align:center;padding:4px;
-  font-size:.58rem;letter-spacing:5px;text-transform:uppercase;
-  color:var(--gold);font-weight:700;
-}
-
-/* DIVIDER */
-.divider{
-  background:linear-gradient(90deg,transparent,var(--gold-gl) 20%,var(--gold-gl) 80%,transparent);
-  border-radius:4px;align-self:center;
 }
 
 /* FOOTER */
@@ -316,18 +294,6 @@ html,body{
 .legend-item.active-leg .leg-time{color:var(--gold-lt);text-shadow:0 0 12px rgba(201,168,76,.4)}
 .legend-item.active-leg .leg-name{color:var(--gold-lt)}
 
-/* Page indicator dots */
-.page-dots{
-  display:flex;align-items:center;justify-content:center;gap:10px;
-  position:absolute;bottom:6px;left:50%;transform:translateX(-50%);
-  z-index:10;
-}
-.pdot{
-  width:8px;height:8px;border-radius:50%;
-  background:rgba(201,168,76,.25);border:1px solid rgba(201,168,76,.4);
-  transition:all .4s ease;cursor:pointer;
-}
-.pdot.on{background:var(--gold);box-shadow:0 0 8px var(--gold-gl);transform:scale(1.3)}
 
 /* ── DURATION LIST ── */
 .circle-right{

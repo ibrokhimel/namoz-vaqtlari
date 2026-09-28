@@ -20,49 +20,46 @@
 
 <div class="layout">
 
-  <!-- HEADER -->
-  <header class="header">
+  <!-- TOP STRIP: mosque identity + wall clock -->
+  <header class="topbar">
     <div class="mosque-block">
       <div class="mosque-arabic" id="mosqueArabic">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيم</div>
       <div class="mosque-name"   id="mosqueName">Namoz Vaqtlari</div>
     </div>
     <div class="clock-block">
-      <div class="live-clock" id="liveClock">00:00:00</div>
-      <div class="live-date"  id="liveDate">—</div>
-    </div>
-    <div class="next-block">
-      <div class="next-lbl"><span class="ndot"></span>Keyingi namoz</div>
-      <div class="next-nm" id="nextName">—</div>
-      <div class="next-cd" id="nextCountdown">--:--:--</div>
-      <div class="next-sub">qoldi</div>
+      <div class="live-clock" id="liveClock">--:--</div>
+      <div class="live-date">
+        <span id="liveDate">—</span>
+        <span id="liveHijri">—</span>
+      </div>
     </div>
   </header>
 
   <!-- PANELS -->
   <div class="panels" id="panels">
 
-    <!-- PANEL 1: Bugun + Ertaga -->
+    <!-- PANEL 1: next prayer + today + tomorrow -->
     <div class="panel panel-days visible" id="panel1">
-      <!-- BUGUN -->
-      <div class="day-section today">
-        <div class="day-label-row">
-          <div class="day-badge today"><span class="dbullet"></span>Bugun</div>
-          <div class="day-date-txt" id="todayDate">—</div>
-          <div class="sun-strip" id="todaySun"></div>
+
+      <!-- HERO: the one thing the back row must read -->
+      <section class="hero" id="hero">
+        <div class="hero-label" id="heroLabel">Keyingi namoz</div>
+        <div class="hero-main">
+          <div class="hero-name">
+            <span class="hero-uz" id="heroName">—</span>
+            <span class="hero-ar" id="heroAr" lang="ar" dir="rtl"></span>
+          </div>
+          <div class="hero-time" id="heroTime">--:--</div>
         </div>
-        <div class="cards-row" id="todayCards"></div>
-      </div>
-      <!-- DIVIDER -->
-      <div class="divider"></div>
-      <!-- ERTAGA -->
-      <div class="day-section tomorrow">
-        <div class="day-label-row">
-          <div class="day-badge tomorrow"><span class="dbullet"></span>Ertaga</div>
-          <div class="day-date-txt" id="tomorrowDate">—</div>
-          <div class="sun-strip" id="tomorrowSun"></div>
-        </div>
-        <div class="cards-row" id="tomorrowCards"></div>
-      </div>
+        <div class="hero-progress"><div class="hero-progress-fill" id="heroProgress"></div></div>
+        <div class="hero-countdown" id="heroCountdown">—</div>
+      </section>
+
+      <!-- TODAY -->
+      <section class="today-row" id="todayRow" aria-label="Bugungi namoz vaqtlari"></section>
+
+      <!-- TOMORROW: one line -->
+      <section class="tomorrow-line" id="tomorrowLine"></section>
     </div>
 
     <!-- PANEL 2: Doira diagramma -->
@@ -83,11 +80,6 @@
       <div class="circle-legend" id="circleLegend"></div>
     </div>
 
-    <!-- Page dots -->
-    <div class="page-dots">
-      <div class="pdot on"  id="dot1" onclick="switchPanel(0)"></div>
-      <div class="pdot"     id="dot2" onclick="switchPanel(1)"></div>
-    </div>
   </div>
 
   <!-- FOOTER -->
