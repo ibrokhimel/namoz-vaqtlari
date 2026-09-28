@@ -36,11 +36,8 @@
     </div>
   </header>
 
-  <!-- PANELS -->
-  <div class="panels" id="panels">
-
-    <!-- PANEL 1: next prayer + today + tomorrow -->
-    <div class="panel panel-days visible" id="panel1">
+  <!-- MAIN: next prayer + today + tomorrow (one still screen, no rotation) -->
+  <main class="panel-days" id="main">
 
       <!-- HERO: the one thing the back row must read -->
       <section class="hero" id="hero">
@@ -53,7 +50,10 @@
           <div class="hero-time" id="heroTime">--:--</div>
         </div>
         <div class="hero-progress"><div class="hero-progress-fill" id="heroProgress"></div></div>
-        <div class="hero-countdown" id="heroCountdown">—</div>
+        <div class="hero-foot">
+          <div class="hero-countdown" id="heroCountdown">—</div>
+          <div class="hero-note" id="heroNote"></div>
+        </div>
       </section>
 
       <!-- TODAY -->
@@ -61,27 +61,7 @@
 
       <!-- TOMORROW: one line -->
       <section class="tomorrow-line" id="tomorrowLine"></section>
-    </div>
-
-    <!-- PANEL 2: Doira diagramma -->
-    <div class="panel panel-circle" id="panel2">
-      <div class="moon-corner" id="moonCorner">
-        <svg id="moonSvg2" width="80" height="80" viewBox="0 0 80 80"></svg>
-        <div class="moon-corner-label" id="moonCornerLabel">—</div>
-      </div>
-      <div class="circle-wrap">
-        <canvas id="clockCanvas" width="580" height="580"></canvas>
-        <div class="circle-center">
-          <div class="cc-time"  id="ccTime">--:--</div>
-          <div class="cc-label">hozirgi vaqt</div>
-          <div class="cc-name"  id="ccName">—</div>
-          <div class="cc-ar"   id="ccAr">—</div>
-        </div>
-      </div>
-      <div class="circle-legend" id="circleLegend"></div>
-    </div>
-
-  </div>
+  </main>
 
   <!-- FOOTER -->
   <footer class="footer">

@@ -103,18 +103,6 @@ html,body{
   padding:54px 96px;
 }
 
-/* PANELS WRAPPER */
-.panels{position:relative;overflow:hidden;width:100%;height:100%}
-
-/* Each panel sits on top of each other, transitions with opacity */
-.panel{
-  position:absolute;inset:0;
-  opacity:0;
-  transition:opacity .9s ease;
-  pointer-events:none;
-}
-.panel.visible{opacity:1;pointer-events:all}
-
 /* SPACING SCALE (4pt) */
 .layout{
   --sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:24px;
@@ -167,7 +155,10 @@ html,body{
 }
 .hero-progress{height:6px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:var(--sp-2)}
 .hero-progress-fill{height:100%;background:var(--teal);transform-origin:left center;transform:scaleX(0)}
-.hero-countdown{font-size:var(--t-word);font-weight:500;color:var(--soft);line-height:1.1;margin-top:var(--sp-2)}
+.hero-foot{display:flex;align-items:baseline;justify-content:space-between;gap:var(--sp-6);margin-top:var(--sp-2)}
+.hero-note{font-size:var(--t-lead);font-weight:500;color:#f5b454;line-height:1.1;text-align:right}
+.hero-note:empty{display:none}
+.hero-countdown{font-size:var(--t-word);font-weight:500;color:var(--soft);line-height:1.1}
 .hero-countdown b{font-family:var(--f-num);font-size:var(--t-count);font-weight:700;color:var(--teal);font-variant-numeric:tabular-nums}
 
 /* TODAY ─ one row of columns, no cards */
@@ -213,18 +204,6 @@ html,body{
 .tomorrow-line .tl-day{font-weight:700;color:var(--text)}
 .tomorrow-line .tl-item b{font-family:var(--f-num);font-weight:700;color:var(--text);margin-left:var(--sp-2);font-variant-numeric:tabular-nums}
 
-/* PANEL 2 moon card */
-.moon-corner{
-  position:absolute;top:18px;left:18px;z-index:10;
-  display:flex;flex-direction:column;align-items:center;gap:6px;
-  background:rgba(10,15,30,0.6);border:1px solid rgba(201,168,76,0.2);
-  border-radius:16px;padding:12px 14px;
-}
-.moon-corner-label{
-  font-family:'Amiri',serif;font-size:.85rem;color:var(--gold-lt);
-  letter-spacing:1px;text-align:center;line-height:1.4;
-}
-
 /* FOOTER ─ calculation source + credit, quiet but legible */
 .footer{
   display:flex;align-items:center;justify-content:space-between;gap:var(--sp-6);
@@ -233,120 +212,5 @@ html,body{
 }
 .footer .f-sep{color:var(--border);margin:0 var(--sp-3)}
 .footer .f-credit{font-weight:500;letter-spacing:.08em}
-
-/* ── PANEL 2: CIRCLE DIAGRAM ── */
-.panel-circle{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:80px;
-  width:100%;
-  height:100%;
-}
-
-.circle-wrap{
-  position:relative;
-  width:580px;height:580px;
-  flex-shrink:0;
-}
-
-.circle-wrap canvas{position:absolute;top:0;left:0;width:580px;height:580px}
-
-/* Center info */
-.circle-center{
-  position:absolute;
-  top:50%;left:50%;
-  transform:translate(-50%,-50%);
-  text-align:center;pointer-events:none;
-}
-.cc-time{
-  font-family:'Amiri',serif;font-size:3.2rem;font-weight:700;
-  color:var(--gold-lt);text-shadow:0 0 20px rgba(201,168,76,.5);
-  line-height:1;
-}
-.cc-label{font-size:.7rem;letter-spacing:4px;text-transform:uppercase;color:var(--soft);margin-top:4px}
-.cc-name{font-size:1.1rem;font-weight:700;color:var(--text);margin-top:6px}
-.cc-ar{font-family:'Scheherazade New','Amiri',serif;font-size:1.6rem;color:var(--gold-lt);line-height:1}
-
-/* Legend */
-.circle-legend{
-  display:flex;flex-direction:column;justify-content:center;gap:16px;
-  min-width:380px;
-}
-.legend-item{
-  display:flex;align-items:center;gap:18px;
-  padding:11px 20px;
-  border-radius:14px;
-  border:1px solid transparent;
-  transition:all .3s ease;
-  animation:fadeDown .6s var(--dl,0s) ease both;
-}
-.legend-item.active-leg{
-  background:rgba(201,168,76,.1);
-  border-color:rgba(201,168,76,.35);
-  box-shadow:0 0 20px rgba(201,168,76,.12);
-}
-.legend-item.zuho-item{
-  border:1px dashed rgba(212,160,32,.2);
-  background:transparent;
-  margin:2px 0;
-}
-.legend-item.zuho-item.active-leg{
-  border:1px dashed rgba(212,160,32,.5);
-  background:rgba(212,160,32,.08);
-}
-.legend-item.zuho-item .leg-name{color:rgba(232,213,160,.6)}
-.legend-item.zuho-item.active-leg .leg-name{color:#e8d5a0}
-.legend-item.zuho-item .leg-dot{border-radius:4px}
-.leg-dot{
-  width:18px;height:18px;border-radius:50%;flex-shrink:0;
-  box-shadow:0 0 8px var(--dc,#fff);
-}
-.leg-info{flex:1}
-.leg-name{font-size:.95rem;font-weight:600;color:var(--text);letter-spacing:1px}
-.leg-ar{font-family:'Scheherazade New','Amiri',serif;font-size:1.1rem;color:var(--soft)}
-.leg-time{
-  font-family:'Amiri',serif;font-size:1.8rem;font-weight:700;
-  color:var(--text);letter-spacing:1px;
-}
-.legend-item.active-leg .leg-time{color:var(--gold-lt);text-shadow:0 0 12px rgba(201,168,76,.4)}
-.legend-item.active-leg .leg-name{color:var(--gold-lt)}
-
-
-/* ── DURATION LIST ── */
-.circle-right{
-  display:flex;flex-direction:column;gap:16px;
-  min-width:420px;justify-content:center;
-}
-.dur-title{
-  font-size:.7rem;letter-spacing:5px;text-transform:uppercase;
-  color:var(--soft);border-bottom:1px solid var(--border);
-  padding-bottom:8px;margin-bottom:4px;
-}
-.dur-item{
-  display:flex;align-items:center;gap:12px;
-  padding:8px 14px;border-radius:12px;
-  border:1px solid transparent;
-  transition:all .3s ease;
-}
-.dur-item.active-dur{
-  background:rgba(201,168,76,.1);
-  border-color:rgba(201,168,76,.3);
-}
-.dur-item.makruh-dur{
-  background:rgba(192,57,43,.07);
-  border-color:rgba(192,57,43,.2);
-}
-.dur-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-.dur-dot.sq{border-radius:3px}
-.dur-name{font-size:.85rem;font-weight:600;color:var(--text);min-width:90px}
-.dur-item.active-dur .dur-name{color:var(--gold-lt)}
-.dur-range{font-size:.72rem;color:var(--soft);min-width:110px;letter-spacing:1px}
-.dur-bar-wrap{flex:1;height:6px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden}
-.dur-bar{height:100%;border-radius:3px;transition:width .5s ease}
-.dur-mins{font-family:'Amiri',serif;font-size:1.2rem;font-weight:700;color:var(--text);min-width:52px;text-align:right}
-.dur-item.active-dur .dur-mins{color:var(--gold-lt)}
-.dur-item.makruh-dur .dur-name{color:#e07070}
-.dur-item.makruh-dur .dur-mins{color:#e07070}
 
 @keyframes fadeDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
