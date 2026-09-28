@@ -2,7 +2,8 @@ import { RAMAZON_HERO, countdownParts, hhmm, isRamazon } from '../core/day.js';
 import Dial from './Dial.jsx';
 
 // The one thing the back row must read: announces a prayer for 5 minutes
-// after it begins ("vaqti kirdi"), otherwise shows the next prayer.
+// after it begins ("vaqti kirdi"), otherwise shows the next prayer. The
+// dial beside it is the wall clock: 24-hour face, hand on "now".
 export default function Hero({ now, st, settings }) {
   const ramazon = isRamazon(now, settings);
   let label, p, time;
@@ -17,6 +18,7 @@ export default function Hero({ now, st, settings }) {
   }
   const heroKey = `${st.started ? 'now' : 'next'}:${p.key}:${p.nameUz}`;
   const makruh = st.makruhUntil && now < st.makruhUntil ? `Hozir makruh vaqt · ${hhmm(st.makruhUntil)} gacha` : '';
+  const periodName = st.current ? `${st.current.nameUz} vaqti` : 'Namoz vaqti emas';
 
   return (
     <section className={`hero enter${st.started ? ' started' : ''}`} id="hero">
@@ -29,11 +31,17 @@ export default function Hero({ now, st, settings }) {
           <span className="hero-uz" id="heroName">{p.nameUz}</span>
           <span className="hero-ar" id="heroAr" lang="ar" dir="rtl">{p.nameAr}</span>
         </div>
-        <Countdown now={now} st={st} ramazon={ramazon} />
+        <div className="hero-when">
+          <span className="hero-time" id="heroTime">{time}</span>
+          <Countdown now={now} st={st} ramazon={ramazon} />
+        </div>
       </div>
       <div className="hero-dial">
         <Dial now={now} st={st} />
-        <div className="hero-time" id="heroTime" key={heroKey}>{time}</div>
+        <div className="dial-center">
+          <div className="dial-clock" id="liveClock">{hhmm(now)}</div>
+          <div className="dial-period">{periodName}</div>
+        </div>
       </div>
     </section>
   );
@@ -50,10 +58,7 @@ function Countdown({ now, st, ramazon }) {
     body = 'Vaqtni hisoblab boʻlmadi';
   } else {
     const parts = countdownParts(st.next.date - now);
-    body = parts.map(([n, unit], i) => (
-      <span key={unit}>{i > 0 && ' '}<b>{n}</b> {unit}</span>
-    ));
-    body = <>{body} qoldi</>;
+    body = <>{parts.map(([n, unit], i) => <span key={unit}>{i > 0 && ' '}<b>{n}</b> {unit}</span>)} qoldi</>;
   }
   return <div className="hero-countdown" id="heroCountdown">{body}</div>;
 }
