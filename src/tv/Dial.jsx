@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useRef } from 'react';
 import { PRAYERS_TV, forDay } from '../core/day.js';
 
 // A 24-hour clock face for the day: 00 at the top like the old donut,
@@ -42,8 +42,17 @@ function Dial({ minute, st, dateKey }) {
   ].filter(Boolean);
   const current = sectors.find(s => inSpan(s.from, s.to));
 
-  const nowA = angle(nowH);
-  const [hx1, hy1] = point(nowA, R - W / 2 - 4), [hx2, hy2] = point(nowA, R + W / 2 + 8);   // across the ring only
+  // The hand is drawn pointing at 00 and rotated; CSS eases the rotation so
+  // it glides from minute to minute. Unwrap the angle so midnight keeps
+  // turning forward instead of spinning back a full circle.
+  const turn = useRef(null);
+  let nowA = angle(nowH);
+  if (turn.current !== null) {
+    while (nowA - turn.current > 180) nowA -= 360;
+    while (turn.current - nowA > 180) nowA += 360;
+  }
+  turn.current = nowA;
+  const [hx1, hy1] = point(0, R - W / 2 - 4), [hx2, hy2] = point(0, R + W / 2 + 8);   // across the ring only
 
   return (
     <svg id="dial" viewBox={`0 0 ${SIZE} ${SIZE}`} role="img"
@@ -84,8 +93,10 @@ function Dial({ minute, st, dateKey }) {
       })}
 
       {/* the hand: points at now */}
-      <line className="hand" x1={f1(hx1)} y1={f1(hy1)} x2={f1(hx2)} y2={f1(hy2)} />
-      <circle className="hand-tip" cx={f1(point(nowA, R)[0])} cy={f1(point(nowA, R)[1])} r="9" />
+      <g className="hand-g" style={{ transform: `rotate(${nowA.toFixed(3)}deg)` }}>
+        <line className="hand" x1={f1(hx1)} y1={f1(hy1)} x2={f1(hx2)} y2={f1(hy2)} />
+        <circle className="hand-tip" cx={C} cy={f1(point(0, R)[1])} r="9" />
+      </g>
     </svg>
   );
 }

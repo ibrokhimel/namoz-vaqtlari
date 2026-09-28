@@ -10,6 +10,7 @@ import {
   getTimesForDate, loadSettings, saveSettings,
 } from '../core/prayer.js';
 import { PRAYERS_TV } from '../core/day.js';
+import { checkNow, installUpdate, useUpdate } from './update-store.js';
 
 const HOLD_MS = 2000;
 const OK_KEYS = new Set(['Enter', 'NumpadEnter', 'Select']);
@@ -25,6 +26,7 @@ const ROWS = [
   { type: 'choice', key: 'weatherBg', label: 'Ob-havo foni', options: [true, false], fmt: k => (k ? 'Yoqilgan' : 'Oʻchirilgan') },
   ...PRAYERS_TV.map(p => ({ type: 'adj', key: p.key, label: `${p.nameUz}: tuzatish`, min: -30, max: 30, unit: 'daq' })),
   { type: 'num',    key: 'hijriAdj', label: 'Hijriy sana', min: -3, max: 3, unit: 'kun' },
+  { type: 'action', id: 'update', label: 'Yangilanishni tekshirish' },
   { type: 'action', id: 'reset', label: 'Standart sozlamalarga qaytarish' },
   { type: 'action', id: 'close', label: 'Yopish' },
 ];
@@ -40,6 +42,9 @@ export default function SettingsPanel({ settings, onChange }) {
   const [pending, setPending] = useState(null);     // { key, value } choice awaiting OK
   const [savedRow, setSavedRow] = useState(-1);
   const holdTimer = useRef(null);
+  const upd = useUpdate();
+  const updRef = useRef(upd);
+  updRef.current = upd;
   const listRef = useRef(null);
   const inputRef = useRef(null);
   const editBefore = useRef('');
@@ -81,6 +86,11 @@ export default function SettingsPanel({ settings, onChange }) {
     }
     if (row.type === 'choice') {
       if (pend?.key === row.key) { save(s => { s[row.key] = pend.value; }); setPending(null); setSavedRow(f); }
+      return;
+    }
+    if (row.id === 'update') {
+      if (updRef.current.status === 'available') { close(); installUpdate(); }
+      else checkNow({ prompt: true });
       return;
     }
     if (row.id === 'close') return close();
@@ -166,7 +176,8 @@ export default function SettingsPanel({ settings, onChange }) {
           {ROWS.map((row, i) => {
             const focused = i === focus;
             const stepper = row.type === 'choice' || row.type === 'adj' || row.type === 'num';
-            const label = row.id === 'reset' && confirmReset && focused ? 'Tasdiqlash uchun yana OK bosing' : row.label;
+            const label = row.id === 'reset' && confirmReset && focused ? 'Tasdiqlash uchun yana OK bosing'
+              : row.id === 'update' ? updateLabel(upd) : row.label;
             const cls = `ts-row ts-${row.type}${focused ? ' focused' : ''}${focused && editing ? ' editing' : ''}`;
             return (
               <li key={row.key || row.id} className={cls}>
@@ -206,4 +217,12 @@ function RowValue({ row, settings, pending, times, inputRef, readOnly }) {
     default:
       return null;
   }
+}
+
+function updateLabel(u) {
+  if (u.status === 'available') return `Yangilash: v${u.info.version} mavjud`;
+  if (u.status === 'checking') return 'Tekshirilmoqda…';
+  if (u.status === 'none') return `Eng soʻnggi versiya · v${u.current.version}`;
+  if (u.status === 'error') return 'Tekshirib boʻlmadi · qayta urinish';
+  return `Yangilanishni tekshirish · v${u.current.version}`;
 }

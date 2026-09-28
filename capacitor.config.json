@@ -1,0 +1,20 @@
+{
+  "appId": "com.ibrokhimel.namozvaqtlari",
+  "appName": "Namoz Vaqtlari",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https",
+    "appStartPath": "tv.html"
+  },
+  "android": {
+    "backgroundColor": "#050911"
+  },
+  "plugins": {
+    "CapacitorUpdater": {
+      "autoUpdate": false,
+      "statsUrl": "",
+      "appReadyTimeout": 15000,
+      "resetWhenUpdate": true
+    }
+  }
+}

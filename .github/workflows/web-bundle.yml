@@ -1,0 +1,64 @@
+# Publishes the in-app update for the TV APK.
+# On every push to main: test, build, zip dist/ and publish a GitHub
+# release "web-<sha>" (marked latest) with bundle.zip. The release body
+# carries {version, builtAt, sha256, message}; the app compares it with its
+# own build, asks the viewer, downloads the zip, verifies the sha256 and
+# switches to it. Only the 10 newest web-* releases are kept.
+name: Web update bundle
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: web-bundle
+  cancel-in-progress: false
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: |
+          echo "APP_BUILT_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
+          echo "SHORT=${GITHUB_SHA::7}" >> "$GITHUB_ENV"
+
+      - run: npm run build
+
+      - name: Zip and checksum
+        run: |
+          (cd dist && zip -qr ../bundle.zip .)
+          echo "SHA256=$(sha256sum bundle.zip | cut -d' ' -f1)" >> "$GITHUB_ENV"
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          export MSG="$(git log -1 --pretty=%s)"
+          node -e 'console.log(JSON.stringify({version:process.env.SHORT,builtAt:process.env.APP_BUILT_AT,sha256:process.env.SHA256,message:process.env.MSG.slice(0,120)},null,2))' > meta.json
+          { echo "In-app update bundle for the TV app (installed from inside the app, no APK reinstall)."; echo; echo '```json'; cat meta.json; echo '```'; } > notes.md
+          gh release create "web-$SHORT" bundle.zip --title "Web $SHORT" --notes-file notes.md --target "$GITHUB_SHA" --latest
+
+      - name: Keep the 10 newest web releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release list --limit 100 --json tagName,createdAt \
+            --jq '[.[] | select(.tagName | startswith("web-"))] | sort_by(.createdAt) | reverse | .[10:] | .[].tagName' \
+            | xargs -r -I{} gh release delete {} --yes --cleanup-tag

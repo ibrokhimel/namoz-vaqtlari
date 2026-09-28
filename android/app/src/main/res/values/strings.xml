@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Namoz Vaqtlari</string>
+    <string name="title_activity_main">Namoz Vaqtlari</string>
+    <string name="package_name">com.ibrokhimel.namozvaqtlari</string>
+    <string name="custom_url_scheme">com.ibrokhimel.namozvaqtlari</string>
+</resources>

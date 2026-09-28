@@ -1,4 +1,5 @@
 import { RAMAZON_HERO, countdownParts, heroMode, hhmm, isRamazon } from '../core/day.js';
+import { AnimatePresence, motion } from 'motion/react';
 import Dial from './Dial.jsx';
 import { FocusText, RollingNumber } from './Motion.jsx';
 
@@ -29,7 +30,13 @@ export default function Hero({ now, st, settings }) {
 
   return (
     <section className={`hero enter mode-${mode}${st.started ? ' started' : ''}`} id="hero">
-      <div className="hero-text" key={heroKey}>
+      <AnimatePresence mode="wait" initial={false}>
+      {/* a new prayer: the old one blurs away, the new one comes into focus */}
+      <motion.div className="hero-text" key={heroKey}
+        initial={{ opacity: 0, y: 18, filter: 'blur(8px)' }}
+        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+        exit={{ opacity: 0, y: -14, filter: 'blur(8px)' }}
+        transition={{ duration: 0.55, ease: [0.25, 1, 0.5, 1] }}>
         <div className="hero-head">
           <div className="hero-label" id="heroLabel">{label}</div>
           <div className="hero-note" id="heroNote">{makruh}</div>
@@ -42,7 +49,8 @@ export default function Hero({ now, st, settings }) {
           <span className="hero-time" id="heroTime">{time}</span>
           <Countdown now={now} st={st} mode={mode} until={until} ramazon={ramazon} />
         </div>
-      </div>
+      </motion.div>
+      </AnimatePresence>
       <div className="hero-dial">
         <Dial now={now} st={st} />
         <div className="dial-center">

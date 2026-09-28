@@ -228,10 +228,7 @@ html,body{
 :root{--ease-out:cubic-bezier(.25,1,.5,1)}           /* ease-out-quart */
 
 /* Hero: a new prayer arrives with a soft rise and fade */
-.hero.enter .hero-text > *{animation:heroIn .9s var(--ease-out) backwards}
-.hero.enter .hero-text > .hero-name{animation:none}   /* the name has its own focus-in (BlurText) */
-.hero.enter .hero-text > :nth-child(3){animation-delay:.16s}
-@keyframes heroIn{from{opacity:0;transform:translateY(16px)}}
+/* hero changes are cross-faded by motion (Hero.jsx) */
 
 /* "vaqti kirdi": the prayer that just began takes the accent colour */
 .hero.started .hero-label,.hero.started .hero-countdown,.hero.started .hero-time{color:var(--accent)}
@@ -274,9 +271,7 @@ html,body{
 /* Generated sky photographs. A phase-specific veil keeps text readable
    while retaining natural cloud texture; all images are bundled offline. */
 .sky{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
-.sky-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
-  animation:skyReveal 1.8s ease-out both}
-@keyframes skyReveal{from{opacity:0}to{opacity:1}}
+.sky-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:filter 3s ease}
 .sky-shade{position:absolute;inset:0;background:
   linear-gradient(180deg,rgba(5,12,24,.48),rgba(5,12,24,.72) 55%,rgba(5,12,24,.84))}
 :root[data-phase="day"] .sky-shade{background:
@@ -308,3 +303,28 @@ html,body{
 .w-icon{width:48px;height:52px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 .w-icon .fill{fill:currentColor;stroke:none}
 .w-temp{font-family:var(--f-num);font-size:3rem;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+
+/* ── STATUS BAR version / update ─────────────────────────── */
+.footer .f-version{font-variant-numeric:tabular-nums}
+.footer .f-update{font-weight:700;color:var(--accent)}
+
+/* ── UPDATE PROMPT ───────────────────────────────────────── */
+.update-scrim{position:absolute;inset:0;z-index:70;display:grid;place-items:center;
+  background:color-mix(in oklab, var(--bg) 70%, transparent)}
+.update-card{width:880px;padding:48px 56px;border-radius:20px;background:var(--panel);
+  border:1px solid var(--line);box-shadow:0 24px 64px color-mix(in oklab, var(--ink) 18%, transparent);
+  display:flex;flex-direction:column;gap:var(--sp-4, 16px)}
+.update-card h2{font-size:var(--t-lead);font-weight:700;color:var(--ink);line-height:1.1}
+.uc-version{font-size:var(--t-small);color:var(--ink-2)}
+.uc-version b{color:var(--accent)}
+.uc-note{font-size:var(--t-caption);color:var(--ink-2);line-height:1.35}
+.uc-actions{display:flex;gap:var(--sp-4, 16px);margin-top:var(--sp-3, 12px)}
+.uc-key{font-size:var(--t-small);font-weight:700;padding:14px 24px;border-radius:12px;border:2px solid var(--line);color:var(--ink)}
+.uc-key.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.uc-progress{height:8px;border-radius:4px;background:var(--track);overflow:hidden;margin-top:var(--sp-3, 12px)}
+.uc-progress i{display:block;height:100%;width:40%;background:var(--accent);border-radius:4px;animation:ucSlide 1.4s ease-in-out infinite}
+@keyframes ucSlide{from{transform:translateX(-100%)}to{transform:translateX(250%)}}
+.uc-error{font-size:var(--t-caption);color:var(--warn)}
+
+/* Dial hand glides between minutes (compositor-friendly rotation) */
+#dial .hand-g{transform-box:view-box;transform-origin:50% 50%;transition:transform 1.4s cubic-bezier(.25,1,.5,1)}

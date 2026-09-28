@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { MotionConfig } from 'motion/react';
 import { ASR_METHODS, CITIES, METHODS, loadSettings, simulation } from '../core/prayer.js';
 import { dayPhase, fmtDayUz, getDayState, hhmm } from '../core/day.js';
 import { useBurnInShift, useNow, useStageScale } from './hooks.js';
@@ -8,6 +9,8 @@ import TodayTable from './TodayTable.jsx';
 import SettingsPanel from './SettingsPanel.jsx';
 import Sky from './sky/Sky.jsx';
 import { useWeather } from './useWeather.js';
+import UpdatePrompt from './UpdatePrompt.jsx';
+import { startUpdates, useUpdate } from './update-store.js';
 
 export default function App() {
   const now = useNow();
@@ -33,12 +36,15 @@ export default function App() {
   const makruh = !!(st.makruhUntil && now < st.makruhUntil);
   useEffect(() => { document.documentElement.dataset.weather = weather?.kind || 'none'; }, [weather?.kind]);
 
+  useEffect(() => { startUpdates(); }, []);
+
   // phase crossfades only after the first frame has painted directly
   useEffect(() => {
     requestAnimationFrame(() => requestAnimationFrame(() => document.documentElement.classList.add('ready')));
   }, []);
 
   return (
+    <MotionConfig reducedMotion="user">
     <div className="stage" id="stage" style={{ '--s': scale }}>
       <Sky phase={phase} weather={weather} makruh={makruh} scale={scale} />
       <div className="layout" style={{ transform: shift }}>
@@ -54,13 +60,24 @@ export default function App() {
             <span className="f-sep">·</span>
             <span id="asrFooter">Asr: {(ASR_METHODS[settings.asrMethod] || ASR_METHODS.Hanafi).name}</span>
           </div>
-          <div>Astronomik hisob<span className="f-sep">·</span><span className="f-credit">RKE</span></div>
+          <div>Astronomik hisob<span className="f-sep">·</span><VersionStatus /><span className="f-sep">·</span><span className="f-credit">RKE</span></div>
         </footer>
       </div>
       <SettingsPanel settings={settings} onChange={setSettings} now={now} />
       <SimBadge now={now} />
+      <UpdatePrompt />
     </div>
+    </MotionConfig>
   );
+}
+
+// Status bar: the running version, or "Yangilanish mavjud" when a newer one
+// is waiting (install it from the settings panel)
+function VersionStatus() {
+  const u = useUpdate();
+  if (u.status === 'available' || u.status === 'installing')
+    return <span className="f-update" id="versionStatus">Yangilanish mavjud</span>;
+  return <span className="f-version" id="versionStatus">v{u.current.version}</span>;
 }
 
 // Test mode (?at=...): impossible to mistake for the real schedule

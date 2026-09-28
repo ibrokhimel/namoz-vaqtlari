@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useReducedMotion } from 'motion/react';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { rnd, startPrecipitation } from './scene.js';
 import daySky from '../../assets/weather/day.webp';
 import duskSky from '../../assets/weather/dusk.webp';
@@ -33,7 +33,12 @@ export default function Sky({ phase, weather, makruh, scale }) {
 
   return (
     <div className={`sky wx-${kind}`} aria-hidden="true">
-      {source && <img key={source} className="sky-photo" src={source} alt="" decoding="async" />}
+      {/* weather/phase change: the new sky cross-fades over the old one */}
+      <AnimatePresence initial={false}>
+        {source && <motion.img key={source} className="sky-photo" src={source} alt="" decoding="async"
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+          transition={{ duration: 2.4, ease: 'easeInOut' }} />}
+      </AnimatePresence>
       {source && <div className="sky-shade" />}
       {FALLING.has(kind) && <canvas ref={rainRef} className="sky-layer" />}
       {kind === 'thunder' && <div className={`lightning${flash ? ' on' : ''}`} key={flash} />}

@@ -149,3 +149,27 @@ describe('weather', () => {
     expect(weatherOverride('?weather=tornado')).toBeNull();
   });
 });
+
+describe('in-app updater', () => {
+  const body = meta => ['Bundle', '', '```json', JSON.stringify(meta), '```'].join('\n');
+  const rel = (meta, tag = 'web-abc1234') => ({ tag_name: tag, body: body(meta),
+    assets: [{ name: 'bundle.zip', browser_download_url: 'https://github.com/x/y/releases/download/web-abc1234/bundle.zip' }] });
+  const good = { version: 'abc1234', builtAt: '2026-10-01T10:00:00Z', sha256: 'a'.repeat(64), message: 'Fix' };
+  it('reads our release format', async () => {
+    const { parseRelease } = await import('../src/core/updater.js');
+    expect(parseRelease(rel(good))).toMatchObject({ version: 'abc1234', sha256: 'a'.repeat(64) });
+  });
+  it('rejects other releases, missing zip or a bad checksum', async () => {
+    const { parseRelease } = await import('../src/core/updater.js');
+    expect(parseRelease(rel(good, 'v1.0'))).toBeNull();
+    expect(parseRelease({ ...rel(good), assets: [] })).toBeNull();
+    expect(parseRelease(rel({ ...good, sha256: 'xyz' }))).toBeNull();
+  });
+  it('offers only a different and later build', async () => {
+    const { isNewer } = await import('../src/core/updater.js');
+    const cur = { version: 'old1234', builtAt: '2026-09-30T10:00:00Z' };
+    expect(isNewer({ ...good }, cur)).toBe(true);
+    expect(isNewer({ ...good, version: 'old1234' }, cur)).toBe(false);
+    expect(isNewer({ ...good, builtAt: '2026-09-01T00:00:00Z' }, cur)).toBe(false);
+  });
+});
