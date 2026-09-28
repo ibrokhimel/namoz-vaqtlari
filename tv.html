@@ -4,97 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Namoz Vaqtlari — TV</title>
-<link href="fonts/fonts.css" rel="stylesheet">
-<link rel="stylesheet" href="tv.css">
-<link rel="stylesheet" href="tv-settings.css">
-<script src="core.js"></script>
-<script src="tv.js"></script>
-<script src="tv-dial.js"></script>
-<script>
-// Choose day/dusk/night before the first paint, so a TV switched on at
-// Bomdod never flashes the bright day palette in a dark hall.
-(function(){
-  try{
-    const s=loadSettings(), now=appNow();
-    document.documentElement.dataset.phase=dayPhase(now, getTimesForDate(now, s, CITIES[s.city]||CITIES.Tashkent));
-  }catch(e){ document.documentElement.dataset.phase='dusk'; }
-})();
-</script>
+<meta name="color-scheme" content="dark light">
+<!-- first frame before CSS/JS load: dark, never a white flash on power-on -->
+<style>html,body{margin:0;background:#050911}</style>
 </head>
 <body>
-<div class="stage" id="stage">
-
-
-<div class="layout">
-
-  <!-- TOP STRIP: mosque identity + wall clock -->
-  <header class="topbar">
-    <div class="mosque-block">
-      <div class="mosque-arabic" id="mosqueArabic" lang="ar" dir="rtl">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيم</div>
-      <div class="mosque-name"   id="mosqueName">Namoz Vaqtlari</div>
-    </div>
-    <div class="clock-block">
-      <div class="live-clock" id="liveClock">--:--</div>
-      <div class="live-date">
-        <span id="liveDate">—</span>
-        <span id="liveHijri">—</span>
-      </div>
-    </div>
-  </header>
-
-  <!-- MAIN: next prayer + today + tomorrow (one still screen, no rotation) -->
-  <main class="panel-days" id="main">
-
-      <!-- HERO: the one thing the back row must read -->
-      <section class="hero" id="hero">
-        <div class="hero-text">
-          <div class="hero-head">
-            <div class="hero-label" id="heroLabel">Keyingi namoz</div>
-            <div class="hero-note" id="heroNote"></div>
-          </div>
-          <div class="hero-name">
-            <span class="hero-uz" id="heroName">—</span>
-            <span class="hero-ar" id="heroAr" lang="ar" dir="rtl"></span>
-          </div>
-          <div class="hero-countdown" id="heroCountdown">—</div>
-        </div>
-        <div class="hero-dial">
-          <svg id="dial" viewBox="0 0 440 440" role="img" aria-label="Kun davomidagi namoz vaqtlari"></svg>
-          <div class="hero-time" id="heroTime">--:--</div>
-        </div>
-      </section>
-
-      <!-- TODAY -->
-      <section class="today-row" id="todayRow" aria-label="Bugungi namoz vaqtlari"></section>
-
-      <!-- TOMORROW: one line -->
-      <section class="tomorrow-line" id="tomorrowLine"></section>
-  </main>
-
-  <!-- FOOTER -->
-  <footer class="footer">
-    <div>
-      <span id="cityFooter">Toshkent</span><span class="f-sep">·</span><span id="methodFooter">—</span><span class="f-sep">·</span><span id="asrFooter">—</span>
-    </div>
-    <div>Astronomik hisob<span class="f-sep">·</span><span class="f-credit">RKE</span></div>
-  </footer>
-
-</div>
-
-</div><!-- /stage -->
-
-<script>
-// ── FIT STAGE TO SCREEN ──────────────────────
-(function(){
-  const stage=document.getElementById('stage');
-  function fitStage(){
-    const s=Math.min(window.innerWidth/1920, window.innerHeight/1080);
-    stage.style.setProperty('--s', s);
-  }
-  fitStage();
-  window.addEventListener('resize', fitStage);
-})();
-</script>
-<script src="tv-settings.js"></script>
+<div id="root"></div>
+<script type="module" src="/src/tv/main.jsx"></script>
 </body>
 </html>

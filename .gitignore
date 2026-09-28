@@ -2,3 +2,5 @@
 .claude/
 .swarm/
 .impeccable/live/
+node_modules/
+dist/

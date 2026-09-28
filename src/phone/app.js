@@ -1,7 +1,35 @@
 /* ─────────────────────────────────────────── */
-/*  PRAYER TIMES APP — app.js (index + settings) */
-/*  Requires core.js                           */
+/*  PHONE PAGES — app.js (index + settings)    */
 /* ─────────────────────────────────────────── */
+import {
+  PRAYERS, CITIES, METHODS, ASR_METHODS, loadSettings, saveSettings, appNow,
+  calcPrayerTimes, decimalToHHMM, decimalToDate, applyAdj, toHijri, getTimesForDate,
+} from '../core/prayer.js';
+import '../assets/fonts/fonts.css';
+import './style.css';
+
+// ──────────────────────────────────────────────
+// STARS BACKGROUND (shared by both pages)
+// ──────────────────────────────────────────────
+function initStars() {
+  const el = document.getElementById('stars');
+  if (!el) return;
+  for (let i = 0; i < 130; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const sz = Math.random() * 2.4 + 0.5;
+    s.style.cssText = `
+      left: ${Math.random() * 100}%;
+      top: ${Math.random() * 65}%;
+      width: ${sz}px;
+      height: ${sz}px;
+      --d: ${(Math.random() * 3 + 1.5).toFixed(1)}s;
+      --delay: ${(Math.random() * 5).toFixed(1)}s;
+    `;
+    el.appendChild(s);
+  }
+}
+
 
 // ──────────────────────────────────────────────
 // MAIN PAGE LOGIC

@@ -5,7 +5,6 @@
    no gold, no glow. Contrast verified: ink >= 10:1,
    secondary >= 5.4:1, times >= 5.9:1 (AAA large) in every phase.
 ═══════════════════════════════════════════════════════ */
-:root,
 :root[data-phase="day"] {           /* sunrise -> Shom: bright hall      */
   --bg:      oklch(0.975 0.006 235);
   --surface: oklch(0.93  0.022 225);  /* current prayer column           */
@@ -34,6 +33,9 @@
   --track:   oklch(0.35 0.04  258);
   color-scheme: dark;
 }
+/* night is also the default before the app has chosen a phase, so the
+   first frame on power-on is never the bright day palette */
+:root,
 :root[data-phase="night"] {         /* Xufton -> Bomdod: dim, low glare  */
   --bg:      oklch(0.14 0.02  258);
   --surface: oklch(0.19 0.028 258);
@@ -71,6 +73,8 @@ html,body{
   background:var(--bg);font-family:var(--f-ui);
   color:var(--ink);-webkit-font-smoothing:antialiased;
 }
+
+#root{position:fixed;inset:0}
 
 /* STAGE: the design is authored on a fixed 1920x1080 canvas and scaled
    to fit any screen (Android TV WebViews often report 960x540 @2x).

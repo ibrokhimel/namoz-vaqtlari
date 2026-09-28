@@ -1,12 +1,13 @@
 /* ─────────────────────────────────────────── */
-/*  NAMOZ VAQTLARI — core.js                   */
-/*  Shared by index.html, settings.html, tv.html */
+/*  NAMOZ VAQTLARI — core/prayer.js            */
+/*  Prayer-time maths, settings, clock, Hijri  */
+/*  Shared by the phone pages and the TV app   */
 /* ─────────────────────────────────────────── */
 
 // ──────────────────────────────────────────────
 // CONSTANTS
 // ──────────────────────────────────────────────
-const PRAYERS = [
+export const PRAYERS = [
   { key: 'fajr',    nameUz: 'Bomdod',  nameAr: 'الفجر',  icon: '🌙' },
   { key: 'dhuhr',   nameUz: 'Peshin',  nameAr: 'الظهر',  icon: '☀️' },
   { key: 'asr',     nameUz: 'Asr',     nameAr: 'العصر',  icon: '🌤️' },
@@ -14,7 +15,7 @@ const PRAYERS = [
   { key: 'isha',    nameUz: 'Xufton',  nameAr: 'العشاء', icon: '🌙' },
 ];
 
-const CITIES = {
+export const CITIES = {
   Tashkent:    { lat: 41.2995, lon: 69.2401, name: "Toshkent"   },
   Samarkand:   { lat: 39.6542, lon: 66.9597, name: "Samarqand"  },
   Bukhara:     { lat: 39.7681, lon: 64.4556, name: "Buxoro"     },
@@ -30,7 +31,7 @@ const CITIES = {
 };
 
 // Calculation methods: [Fajr angle, Isha angle]
-const METHODS = {
+export const METHODS = {
   MWL:     { fajr: 18, isha: 17,   name: "Muslim World League" },
   ISNA:    { fajr: 15, isha: 15,   name: "ISNA (Amerika)"      },
   Egypt:   { fajr: 19.5, isha: 17.5, name: "Misr (Qohira)"    },
@@ -39,13 +40,13 @@ const METHODS = {
 };
 
 // Asr: 1 = Shafi/Maliki/Hanbali, 2 = Hanafi
-const ASR_METHODS = {
+export const ASR_METHODS = {
   Standard: { factor: 1, name: "Shofiy / Molikiy" },
   Hanafi:   { factor: 2, name: "Hanafiy" },
 };
 
 // Default settings
-const DEFAULT_SETTINGS = {
+export const DEFAULT_SETTINGS = {
   city:        'Tashkent',
   method:      'Karachi',
   asrMethod:   'Hanafi',
@@ -58,7 +59,7 @@ const DEFAULT_SETTINGS = {
 // ──────────────────────────────────────────────
 // SETTINGS STORE
 // ──────────────────────────────────────────────
-function loadSettings() {
+export function loadSettings() {
   try {
     const s = JSON.parse(localStorage.getItem('prayerSettings') || 'null');
     return s ? { ...DEFAULT_SETTINGS, ...s, adjustments: { ...DEFAULT_SETTINGS.adjustments, ...(s.adjustments || {}) } }
@@ -66,7 +67,7 @@ function loadSettings() {
   } catch { return { ...DEFAULT_SETTINGS, adjustments: { ...DEFAULT_SETTINGS.adjustments } }; }
 }
 
-function saveSettings(s) {
+export function saveSettings(s) {
   try { localStorage.setItem('prayerSettings', JSON.stringify(s)); return true; }
   catch { return false; }  // storage full or blocked: keep running on defaults
 }
@@ -79,9 +80,9 @@ function saveSettings(s) {
 // count down to the wrong moment. appNow() returns a Date whose *local*
 // fields (getHours, getDate...) read Tashkent wall time whatever the
 // device zone is, so all date math below can keep using local getters.
-const CITY_UTC_OFFSET_MIN = 5 * 60;
+export const CITY_UTC_OFFSET_MIN = 5 * 60;
 
-function appNow() {
+export function appNow() {
   const d = new Date();
   return new Date(d.getTime() + (CITY_UTC_OFFSET_MIN + d.getTimezoneOffset()) * 60000);
 }
@@ -114,7 +115,7 @@ function sunPosition(date) {
   return { sinDec, cosDec, EqT };
 }
 
-function calcPrayerTimes(date, lat, lon, methodKey, asrKey) {
+export function calcPrayerTimes(date, lat, lon, methodKey, asrKey) {
   const method = METHODS[methodKey] || METHODS.Karachi;
   const asr    = ASR_METHODS[asrKey] || ASR_METHODS.Hanafi;
   const tz     = CITY_UTC_OFFSET_MIN / 60;
@@ -156,13 +157,13 @@ function calcPrayerTimes(date, lat, lon, methodKey, asrKey) {
 // ──────────────────────────────────────────────
 // Work in whole seconds so float error (16.3*60 = 977.9999...) never
 // turns 16:18 into 16:17.
-function decimalToHHMM(h) {
+export function decimalToHHMM(h) {
   if (!Number.isFinite(h)) return '--:--';
   const m = Math.round((((h % 24) + 24) % 24) * 60) % 1440;
   return `${String(Math.floor(m / 60)).padStart(2,'0')}:${String(m % 60).padStart(2,'0')}`;
 }
 
-function decimalToDate(h, referenceDate) {
+export function decimalToDate(h, referenceDate) {
   if (!Number.isFinite(h)) return null;
   const s = Math.round((((h % 24) + 24) % 24) * 3600);
   return new Date(referenceDate.getFullYear(), referenceDate.getMonth(), referenceDate.getDate(), 0, 0, s);
@@ -170,38 +171,16 @@ function decimalToDate(h, referenceDate) {
 
 // Published timetables use whole minutes; round once, here, so the time
 // shown and the moment the countdown reaches zero are the same minute.
-const roundToMinute = h => Number.isFinite(h) ? Math.round(h * 60) / 60 : NaN;
+export const roundToMinute = h => Number.isFinite(h) ? Math.round(h * 60) / 60 : NaN;
 
-function applyAdj(decimalHour, minutesAdj) {
+export function applyAdj(decimalHour, minutesAdj) {
   return decimalHour + minutesAdj / 60;
-}
-
-// ──────────────────────────────────────────────
-// STARS BACKGROUND (shared by both pages)
-// ──────────────────────────────────────────────
-function initStars() {
-  const el = document.getElementById('stars');
-  if (!el) return;
-  for (let i = 0; i < 130; i++) {
-    const s = document.createElement('div');
-    s.className = 'star';
-    const sz = Math.random() * 2.4 + 0.5;
-    s.style.cssText = `
-      left: ${Math.random() * 100}%;
-      top: ${Math.random() * 65}%;
-      width: ${sz}px;
-      height: ${sz}px;
-      --d: ${(Math.random() * 3 + 1.5).toFixed(1)}s;
-      --delay: ${(Math.random() * 5).toFixed(1)}s;
-    `;
-    el.appendChild(s);
-  }
 }
 
 // ──────────────────────────────────────────────
 // HIJRI DATE
 // ──────────────────────────────────────────────
-function toHijri(date, adj){
+export function toHijri(date, adj){
   adj = adj || 0;
   const HIJRI_MONTHS=['Muharram','Safar','Rabiul avval','Rabiul oxir',
     'Jumodul avval','Jumodul oxir','Rajab','Shaʼbon','Ramazon','Shavvol',
@@ -223,7 +202,7 @@ function toHijri(date, adj){
 }
 
 // Adjusted prayer times for a date (sunrise is never adjusted)
-function getTimesForDate(date, settings, city) {
+export function getTimesForDate(date, settings, city) {
   const raw = calcPrayerTimes(date, city.lat, city.lon, settings.method, settings.asrMethod);
   const adj = settings.adjustments;
   return {
