@@ -1,20 +1,54 @@
 /* ═══════════════════════════════════════════════════════
-   55" TV — 1920x1080  ·  BUGUN + ERTAGA
-   Islomiy klassik · Oltin & Ko'k · Masjid uslubi
+   MOSQUE TV — authored at 1920x1080, scaled to any screen
+   Palette: "calm daylight" — the screen follows the sun.
+   Hues from Uzbek majolica (lapis 258, turquoise 195-205);
+   no gold, no glow. Contrast verified: ink >= 10:1,
+   secondary >= 5.4:1, times >= 5.9:1 (AAA large) in every phase.
 ═══════════════════════════════════════════════════════ */
+:root,
+:root[data-phase="day"] {           /* sunrise -> Shom: bright hall      */
+  --bg:      oklch(0.975 0.006 235);
+  --surface: oklch(0.93  0.022 225);  /* current prayer column           */
+  --ink:     oklch(0.24  0.035 252);
+  --ink-2:   oklch(0.47  0.03  250);  /* secondary text, passed prayers  */
+  --line:    oklch(0.86  0.015 240);
+  --line-2:  oklch(0.91  0.012 240);
+  --accent:  oklch(0.47  0.10  205);  /* turquoise: the next prayer      */
+  --mark:    oklch(0.40  0.13  258);  /* lapis: hero time, Arabic, now   */
+  --warn:    oklch(0.52  0.14  45);   /* terracotta: makruh notice       */
+  --panel:   oklch(0.995 0.003 235);  /* settings panel                  */
+  --track:   oklch(0.90  0.012 240);  /* progress track                  */
+  color-scheme: light;
+}
+:root[data-phase="dusk"] {          /* Shom -> Xufton, Bomdod -> sunrise */
+  --bg:      oklch(0.27 0.045 258);
+  --surface: oklch(0.33 0.055 258);
+  --ink:     oklch(0.96 0.01  250);
+  --ink-2:   oklch(0.78 0.03  250);
+  --line:    oklch(0.38 0.04  258);
+  --line-2:  oklch(0.33 0.04  258);
+  --accent:  oklch(0.84 0.10  195);
+  --mark:    oklch(0.87 0.07  238);
+  --warn:    oklch(0.82 0.12  65);
+  --panel:   oklch(0.22 0.04  258);
+  --track:   oklch(0.35 0.04  258);
+  color-scheme: dark;
+}
+:root[data-phase="night"] {         /* Xufton -> Bomdod: dim, low glare  */
+  --bg:      oklch(0.14 0.02  258);
+  --surface: oklch(0.19 0.028 258);
+  --ink:     oklch(0.80 0.015 250);
+  --ink-2:   oklch(0.62 0.02  250);
+  --line:    oklch(0.24 0.02  258);
+  --line-2:  oklch(0.20 0.02  258);
+  --accent:  oklch(0.72 0.09  195);
+  --mark:    oklch(0.74 0.06  238);
+  --warn:    oklch(0.72 0.12  60);
+  --panel:   oklch(0.18 0.025 258);
+  --track:   oklch(0.22 0.02  258);
+  color-scheme: dark;
+}
 :root {
-  --bg:       #04080f;
-  --gold:     #c9a84c;
-  --gold-lt:  #f0d484;
-  --gold-dim: rgba(201,168,76,0.16);
-  --gold-gl:  rgba(201,168,76,0.35);
-  --teal:     #2dd4bf;
-  --text:     #e8dcc8;
-  --soft:     #7a8899;
-  --card:     rgba(12,20,38,0.88);
-  --border:   rgba(201,168,76,0.2);
-  --bsoft:    rgba(255,255,255,0.05);
-
   /* TYPE ─ one role per family */
   --f-ui:  'Tajawal', system-ui, sans-serif;          /* Uzbek text, labels */
   --f-num: 'Amiri', Georgia, serif;                    /* times, clock, countdown */
@@ -35,7 +69,8 @@
 html,body{
   width:100%;height:100%;overflow:hidden;
   background:var(--bg);font-family:var(--f-ui);
-  color:var(--text);-webkit-font-smoothing:antialiased;
+  transition:background-color 3s ease, color 3s ease;
+  color:var(--ink);-webkit-font-smoothing:antialiased;
 }
 
 /* STAGE: the design is authored on a fixed 1920x1080 canvas and scaled
@@ -46,52 +81,22 @@ html,body{
   position:absolute;left:50%;top:50%;
   width:1920px;height:1080px;overflow:hidden;
   transform:translate(-50%,-50%) scale(var(--s,1));
-  background:var(--bg);
+  background:var(--bg);color:var(--ink);
+  transition:background-color 3s ease, color 3s ease;
 }
 
-/* BACKGROUND */
-.bg{
-  position:fixed;inset:0;z-index:0;
-  background:
-    radial-gradient(ellipse 60% 70% at 10% 50%,#0c1c38 0%,transparent 60%),
-    radial-gradient(ellipse 60% 70% at 90% 50%,#09162c 0%,transparent 60%),
-    radial-gradient(ellipse 100% 45% at 50% 0%, #0f1e34 0%,transparent 55%),
-    var(--bg);
-}
-.geo{
-  position:fixed;inset:0;z-index:1;pointer-events:none;
-  background-image:
-    repeating-linear-gradient(0deg,  transparent,transparent 79px,rgba(201,168,76,.032) 80px),
-    repeating-linear-gradient(90deg, transparent,transparent 79px,rgba(201,168,76,.032) 80px);
-}
+/* Stars: only on night/dusk screens, removed entirely in the quieter pass */
 .stars{position:fixed;inset:0;z-index:1;pointer-events:none}
 .star{
-  position:absolute;background:#fff;border-radius:50%;
+  position:absolute;background:var(--ink-2);border-radius:50%;
   animation:twinkle var(--d,2s) ease-in-out infinite alternate;
   animation-delay:var(--dl,0s);
 }
+:root[data-phase="day"] .stars{display:none}
 @keyframes twinkle{
   from{opacity:.06;transform:scale(.8)}
   to  {opacity:.8;transform:scale(1.3)}
 }
-.bar{position:fixed;left:0;right:0;z-index:2;height:4px;
-  background:linear-gradient(90deg,transparent,var(--gold),#f0d484,var(--gold),transparent)}
-.bar.top{top:0}.bar.bot{bottom:0}
-.sline{position:fixed;top:36px;bottom:36px;z-index:2;width:1px;
-  background:linear-gradient(to bottom,transparent,var(--gold-gl) 25%,var(--gold-gl) 75%,transparent)}
-.sline.l{left:56px}.sline.r{right:56px}
-.corner{position:fixed;z-index:2;pointer-events:none}
-.corner::before,.corner::after{content:'';position:absolute;background:var(--gold);opacity:.42}
-.corner.tl{top:14px;left:14px}.corner.tr{top:14px;right:14px}
-.corner.bl{bottom:14px;left:14px}.corner.br{bottom:14px;right:14px}
-.corner::before{width:44px;height:2px}
-.corner::after{width:2px;height:44px}
-.corner.tl::before,.corner.bl::before{left:0}
-.corner.tr::before,.corner.br::before{right:0}
-.corner.tl::after,.corner.tr::after{top:0}
-.corner.bl::after,.corner.br::after{bottom:0}
-.corner.tl::before{top:0}.corner.tr::before{top:0}
-.corner.bl::before{bottom:0}.corner.br::before{bottom:0}
 
 /* LAYOUT */
 .layout{
@@ -112,26 +117,26 @@ html,body{
 /* TOP STRIP ─ mosque identity (left) + wall clock (right) */
 .topbar{
   display:flex;align-items:center;justify-content:space-between;
-  border-bottom:1px solid var(--border);
+  border-bottom:1px solid var(--line);
   animation:fadeDown .8s ease both;
 }
 .mosque-block{display:flex;flex-direction:column;gap:var(--sp-3);min-width:0;max-width:58%}
 .mosque-arabic{
   font-family:var(--f-ar);
-  font-size:var(--t-lead);color:var(--gold-lt);line-height:1.25;
+  font-size:var(--t-lead);color:var(--mark);line-height:1.25;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
-.mosque-name{font-size:var(--t-small);font-weight:500;color:var(--text);line-height:1.1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mosque-name{font-size:var(--t-small);font-weight:500;color:var(--ink);line-height:1.1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .clock-block{display:flex;align-items:center;gap:var(--sp-5)}
 .live-clock{
   font-family:var(--f-num);font-size:var(--t-clock);font-weight:700;
-  color:var(--text);line-height:1;font-variant-numeric:tabular-nums;
+  color:var(--ink);line-height:1;font-variant-numeric:tabular-nums;
 }
 .live-date{
   display:flex;flex-direction:column;gap:var(--sp-1);
-  font-size:var(--t-caption);color:var(--soft);line-height:1.25;
+  font-size:var(--t-caption);color:var(--ink-2);line-height:1.25;
 }
-.live-date #liveDate{color:var(--text)}
+.live-date #liveDate{color:var(--ink)}
 
 /* PANEL 1 ─ hero / today / tomorrow */
 .panel-days{
@@ -144,73 +149,73 @@ html,body{
 
 /* HERO ─ next prayer, readable from the back of the hall */
 .hero{display:flex;flex-direction:column;justify-content:center;gap:var(--sp-3);min-height:0}
-.hero-label{font-size:var(--t-lead);font-weight:500;color:var(--teal);line-height:1}
+.hero-label{font-size:var(--t-lead);font-weight:500;color:var(--accent);line-height:1}
 .hero-main{display:flex;align-items:baseline;justify-content:space-between;gap:var(--sp-7)}
 .hero-name{display:flex;align-items:baseline;gap:var(--sp-6);min-width:0}
-.hero-uz{font-size:var(--t-hero);font-weight:700;color:var(--text);line-height:1;letter-spacing:-.01em}
-.hero-ar{font-family:var(--f-ar);font-size:6rem;color:var(--gold-lt);line-height:1}
+.hero-uz{font-size:var(--t-hero);font-weight:700;color:var(--ink);line-height:1;letter-spacing:-.01em}
+.hero-ar{font-family:var(--f-ar);font-size:6rem;color:var(--mark);line-height:1}
 .hero-time{
   font-family:var(--f-num);font-size:var(--t-hero);font-weight:700;
-  color:var(--gold-lt);line-height:1;font-variant-numeric:tabular-nums;
+  color:var(--mark);line-height:1;font-variant-numeric:tabular-nums;
 }
-.hero-progress{height:6px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:var(--sp-2)}
-.hero-progress-fill{height:100%;background:var(--teal);transform-origin:left center;transform:scaleX(0)}
+.hero-progress{height:6px;border-radius:3px;background:var(--track);overflow:hidden;margin-top:var(--sp-2)}
+.hero-progress-fill{height:100%;background:var(--accent);transform-origin:left center;transform:scaleX(0)}
 .hero-foot{display:flex;align-items:baseline;justify-content:space-between;gap:var(--sp-6);margin-top:var(--sp-2)}
-.hero-note{font-size:var(--t-lead);font-weight:500;color:#f5b454;line-height:1.1;text-align:right}
+.hero-note{font-size:var(--t-lead);font-weight:500;color:var(--warn);line-height:1.1;text-align:right}
 .hero-note:empty{display:none}
-.hero-countdown{font-size:var(--t-word);font-weight:500;color:var(--soft);line-height:1.1}
-.hero-countdown b{font-family:var(--f-num);font-size:var(--t-count);font-weight:700;color:var(--teal);font-variant-numeric:tabular-nums}
+.hero-countdown{font-size:var(--t-word);font-weight:500;color:var(--ink-2);line-height:1.1}
+.hero-countdown b{font-family:var(--f-num);font-size:var(--t-count);font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}
 
 /* TODAY ─ one row of columns, no cards */
 .today-row{
   display:grid;
   grid-template-columns:1fr .72fr 1fr 1fr 1fr 1fr;
-  border-top:1px solid var(--border);
-  border-bottom:1px solid var(--border);
+  border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);
 }
 .t-col{
   display:flex;flex-direction:column;gap:var(--sp-2);
   padding:var(--sp-5) var(--sp-5) var(--sp-5);
   position:relative;
 }
-.t-col + .t-col{box-shadow:inset 1px 0 0 var(--bsoft)}
+.t-col + .t-col{box-shadow:inset 1px 0 0 var(--line-2)}
 .t-head{display:flex;align-items:baseline;justify-content:space-between;gap:var(--sp-3)}
-.t-uz{font-size:var(--t-label);font-weight:700;color:var(--text);line-height:1}
-.t-ar{font-family:var(--f-ar);font-size:var(--t-small);color:var(--gold-lt);line-height:1}
-.t-time{font-family:var(--f-num);font-size:var(--t-time);font-weight:700;color:var(--text);line-height:1;font-variant-numeric:tabular-nums}
-.t-state{font-size:var(--t-caption);font-weight:500;line-height:1;min-height:1em;color:var(--soft)}
+.t-uz{font-size:var(--t-label);font-weight:700;color:var(--ink);line-height:1}
+.t-ar{font-family:var(--f-ar);font-size:var(--t-small);color:var(--mark);line-height:1}
+.t-time{font-family:var(--f-num);font-size:var(--t-time);font-weight:700;color:var(--ink);line-height:1;font-variant-numeric:tabular-nums}
+.t-state{font-size:var(--t-caption);font-weight:500;line-height:1;min-height:1em;color:var(--ink-2)}
 
 /* sunrise: not a prayer; the end of Bomdod time */
-.t-col.sun .t-uz{font-weight:500;color:var(--soft)}
-.t-col.sun .t-time{font-size:4rem;color:var(--soft);height:5.5rem;display:flex;align-items:flex-end;padding-bottom:.35rem}
+.t-col.sun .t-uz{font-weight:500;color:var(--ink-2)}
+.t-col.sun .t-time{font-size:4rem;color:var(--ink-2);height:5.5rem;display:flex;align-items:flex-end;padding-bottom:.35rem}
 
 /* states */
-.t-col.passed .t-uz,.t-col.passed .t-time,.t-col.passed .t-ar{color:var(--soft)}
-.t-col.current{background:rgba(201,168,76,.10)}
-.t-col.current .t-time{color:var(--gold-lt)}
-.t-col.current .t-state{color:var(--gold-lt)}
-.t-col.next .t-time{color:var(--teal)}
-.t-col.next .t-state{color:var(--teal)}
+.t-col.passed .t-uz,.t-col.passed .t-time,.t-col.passed .t-ar{color:var(--ink-2)}
+.t-col.current{background:var(--surface)}
+.t-col.current .t-time{color:var(--mark)}
+.t-col.current .t-state{color:var(--mark)}
+.t-col.next .t-time{color:var(--accent)}
+.t-col.next .t-state{color:var(--accent)}
 .t-col.next::after{
-  content:'';position:absolute;left:0;right:0;bottom:-1px;height:4px;background:var(--teal);
+  content:'';position:absolute;left:0;right:0;bottom:-1px;height:4px;background:var(--accent);
 }
 
 /* TOMORROW ─ one quiet line */
 .tomorrow-line{
   display:flex;align-items:baseline;gap:var(--sp-6);
-  font-size:var(--t-small);color:var(--soft);line-height:1;white-space:nowrap;
+  font-size:var(--t-small);color:var(--ink-2);line-height:1;white-space:nowrap;
   padding-bottom:var(--sp-5);
 }
-.tomorrow-line .tl-day{font-weight:700;color:var(--text)}
-.tomorrow-line .tl-item b{font-family:var(--f-num);font-weight:700;color:var(--text);margin-left:var(--sp-2);font-variant-numeric:tabular-nums}
+.tomorrow-line .tl-day{font-weight:700;color:var(--ink)}
+.tomorrow-line .tl-item b{font-family:var(--f-num);font-weight:700;color:var(--ink);margin-left:var(--sp-2);font-variant-numeric:tabular-nums}
 
 /* FOOTER ─ calculation source + credit, quiet but legible */
 .footer{
   display:flex;align-items:center;justify-content:space-between;gap:var(--sp-6);
-  border-top:1px solid var(--border);
-  font-size:var(--t-caption);color:var(--soft);line-height:1;
+  border-top:1px solid var(--line);
+  font-size:var(--t-caption);color:var(--ink-2);line-height:1;
 }
-.footer .f-sep{color:var(--border);margin:0 var(--sp-3)}
+.footer .f-sep{color:var(--line);margin:0 var(--sp-3)}
 .footer .f-credit{font-weight:500;letter-spacing:.08em}
 
 @keyframes fadeDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}

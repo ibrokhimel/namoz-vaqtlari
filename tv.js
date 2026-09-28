@@ -101,11 +101,24 @@ function getDayState(now, settings, city){
   return {T, sunrise, current, next, from, tom, makruhUntil:makruhEnd(now,T)};
 }
 
+// Screen phase follows the sun: day (sunrise -> Shom), dusk (Bomdod ->
+// sunrise and Shom -> Xufton), night (Xufton -> Bomdod).
+function dayPhase(now, T){
+  const at=t=>decimalToDate(t,now);
+  const fajr=at(T.fajr), sun=at(T.sunrise), maghrib=at(T.maghrib), isha=at(T.isha);
+  if(!fajr||!sun||!maghrib||!isha) return 'dusk';
+  if(now<fajr || now>=isha) return 'night';
+  if(now>=sun && now<maghrib) return 'day';
+  return 'dusk';
+}
+
 function renderTV(){
   const settings=loadSettings();
   const city=CITIES[settings.city]||CITIES.Tashkent;
   const now=appNow();
   const st=getDayState(now,settings,city);
+  const phase=dayPhase(now,st.T);
+  if(document.documentElement.dataset.phase!==phase) document.documentElement.dataset.phase=phase;
 
   document.getElementById('mosqueName').textContent   =settings.mosqueName   ||'Namoz Vaqtlari';
   document.getElementById('mosqueArabic').textContent =settings.mosqueArabic ||'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيم';
