@@ -14,11 +14,27 @@
   --card:     rgba(12,20,38,0.88);
   --border:   rgba(201,168,76,0.2);
   --bsoft:    rgba(255,255,255,0.05);
+
+  /* TYPE ─ one role per family */
+  --f-ui:  'Tajawal', system-ui, sans-serif;          /* Uzbek text, labels */
+  --f-num: 'Amiri', Georgia, serif;                    /* times, clock, countdown */
+  --f-ar:  'Scheherazade New', 'Amiri', serif;         /* Arabic */
+
+  /* TYPE SCALE (stage px; 24px is the floor for anything on a TV) */
+  --t-caption:  1.5rem;   /* 24  footer, meta          */
+  --t-small:    1.75rem;  /* 28  tomorrow line, name   */
+  --t-label:    2.25rem;  /* 36  prayer names in row   */
+  --t-lead:     2.75rem;  /* 44  hero label, Bismillah */
+  --t-word:     3rem;     /* 48  countdown words       */
+  --t-clock:    5rem;     /* 80  wall clock            */
+  --t-time:     5.5rem;   /* 88  times in the row      */
+  --t-count:    7.5rem;   /* 120 countdown numerals    */
+  --t-hero:     11rem;    /* 176 next prayer name/time */
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 html,body{
   width:100%;height:100%;overflow:hidden;
-  background:var(--bg);font-family:'Tajawal',sans-serif;
+  background:var(--bg);font-family:var(--f-ui);
   color:var(--text);-webkit-font-smoothing:antialiased;
 }
 
@@ -111,20 +127,20 @@ html,body{
   border-bottom:1px solid var(--border);
   animation:fadeDown .8s ease both;
 }
-.mosque-block{display:flex;flex-direction:column;gap:var(--sp-2)}
+.mosque-block{display:flex;flex-direction:column;gap:var(--sp-3)}
 .mosque-arabic{
-  font-family:'Scheherazade New','Amiri',serif;
-  font-size:2.75rem;color:var(--gold-lt);line-height:1;
+  font-family:var(--f-ar);
+  font-size:var(--t-lead);color:var(--gold-lt);line-height:1.25;
 }
-.mosque-name{font-size:1.75rem;font-weight:500;color:var(--text);line-height:1}
+.mosque-name{font-size:var(--t-small);font-weight:500;color:var(--text);line-height:1.1}
 .clock-block{display:flex;align-items:center;gap:var(--sp-5)}
 .live-clock{
-  font-family:'Amiri',serif;font-size:5rem;font-weight:700;
+  font-family:var(--f-num);font-size:var(--t-clock);font-weight:700;
   color:var(--text);line-height:1;font-variant-numeric:tabular-nums;
 }
 .live-date{
   display:flex;flex-direction:column;gap:var(--sp-1);
-  font-size:1.5rem;color:var(--soft);line-height:1.2;
+  font-size:var(--t-caption);color:var(--soft);line-height:1.25;
 }
 .live-date #liveDate{color:var(--text)}
 
@@ -139,19 +155,19 @@ html,body{
 
 /* HERO ─ next prayer, readable from the back of the hall */
 .hero{display:flex;flex-direction:column;justify-content:center;gap:var(--sp-3);min-height:0}
-.hero-label{font-size:2.5rem;font-weight:500;color:var(--teal);line-height:1}
+.hero-label{font-size:var(--t-lead);font-weight:500;color:var(--teal);line-height:1}
 .hero-main{display:flex;align-items:baseline;justify-content:space-between;gap:var(--sp-7)}
 .hero-name{display:flex;align-items:baseline;gap:var(--sp-6);min-width:0}
-.hero-uz{font-size:11rem;font-weight:700;color:var(--text);line-height:1;letter-spacing:-.01em}
-.hero-ar{font-family:'Scheherazade New','Amiri',serif;font-size:6rem;color:var(--gold-lt);line-height:1}
+.hero-uz{font-size:var(--t-hero);font-weight:700;color:var(--text);line-height:1;letter-spacing:-.01em}
+.hero-ar{font-family:var(--f-ar);font-size:6rem;color:var(--gold-lt);line-height:1}
 .hero-time{
-  font-family:'Amiri',serif;font-size:11rem;font-weight:700;
+  font-family:var(--f-num);font-size:var(--t-hero);font-weight:700;
   color:var(--gold-lt);line-height:1;font-variant-numeric:tabular-nums;
 }
 .hero-progress{height:6px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:var(--sp-2)}
 .hero-progress-fill{height:100%;background:var(--teal);transform-origin:left center;transform:scaleX(0)}
-.hero-countdown{font-size:3rem;font-weight:500;color:var(--soft);line-height:1.1;margin-top:var(--sp-2)}
-.hero-countdown b{font-family:'Amiri',serif;font-size:7.5rem;font-weight:700;color:var(--teal);font-variant-numeric:tabular-nums}
+.hero-countdown{font-size:var(--t-word);font-weight:500;color:var(--soft);line-height:1.1;margin-top:var(--sp-2)}
+.hero-countdown b{font-family:var(--f-num);font-size:var(--t-count);font-weight:700;color:var(--teal);font-variant-numeric:tabular-nums}
 
 /* TODAY ─ one row of columns, no cards */
 .today-row{
@@ -167,10 +183,10 @@ html,body{
 }
 .t-col + .t-col{box-shadow:inset 1px 0 0 var(--bsoft)}
 .t-head{display:flex;align-items:baseline;justify-content:space-between;gap:var(--sp-3)}
-.t-uz{font-size:2.25rem;font-weight:700;color:var(--text);line-height:1}
-.t-ar{font-family:'Scheherazade New','Amiri',serif;font-size:2rem;color:var(--gold-lt);line-height:1}
-.t-time{font-family:'Amiri',serif;font-size:5.5rem;font-weight:700;color:var(--text);line-height:1;font-variant-numeric:tabular-nums}
-.t-state{font-size:1.5rem;font-weight:500;line-height:1;min-height:1em;color:var(--soft)}
+.t-uz{font-size:var(--t-label);font-weight:700;color:var(--text);line-height:1}
+.t-ar{font-family:var(--f-ar);font-size:var(--t-small);color:var(--gold-lt);line-height:1}
+.t-time{font-family:var(--f-num);font-size:var(--t-time);font-weight:700;color:var(--text);line-height:1;font-variant-numeric:tabular-nums}
+.t-state{font-size:var(--t-caption);font-weight:500;line-height:1;min-height:1em;color:var(--soft)}
 
 /* sunrise: not a prayer; the end of Bomdod time */
 .t-col.sun .t-uz{font-weight:500;color:var(--soft)}
@@ -190,10 +206,11 @@ html,body{
 /* TOMORROW ─ one quiet line */
 .tomorrow-line{
   display:flex;align-items:baseline;gap:var(--sp-6);
-  font-size:1.75rem;color:var(--soft);line-height:1;white-space:nowrap;
+  font-size:var(--t-small);color:var(--soft);line-height:1;white-space:nowrap;
+  padding-bottom:var(--sp-5);
 }
 .tomorrow-line .tl-day{font-weight:700;color:var(--text)}
-.tomorrow-line .tl-item b{font-family:'Amiri',serif;font-weight:700;color:var(--text);margin-left:var(--sp-2);font-variant-numeric:tabular-nums}
+.tomorrow-line .tl-item b{font-family:var(--f-num);font-weight:700;color:var(--text);margin-left:var(--sp-2);font-variant-numeric:tabular-nums}
 
 /* PANEL 2 moon card */
 .moon-corner{
@@ -207,14 +224,14 @@ html,body{
   letter-spacing:1px;text-align:center;line-height:1.4;
 }
 
-/* FOOTER */
+/* FOOTER ─ calculation source + credit, quiet but legible */
 .footer{
-  display:flex;align-items:center;justify-content:space-between;
+  display:flex;align-items:center;justify-content:space-between;gap:var(--sp-6);
   border-top:1px solid var(--border);
-  font-size:.75rem;color:var(--soft);letter-spacing:2px;
+  font-size:var(--t-caption);color:var(--soft);line-height:1;
 }
-.f-sep{width:4px;height:4px;border-radius:50%;background:var(--gold);opacity:.4;display:inline-block;margin:0 10px;vertical-align:middle}
-.f-center{font-family:'Amiri',serif;font-size:1.2rem;color:rgba(201,168,76,.32);letter-spacing:8px}
+.footer .f-sep{color:var(--border);margin:0 var(--sp-3)}
+.footer .f-credit{font-weight:500;letter-spacing:.08em}
 
 /* ── PANEL 2: CIRCLE DIAGRAM ── */
 .panel-circle{

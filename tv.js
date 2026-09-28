@@ -150,7 +150,8 @@ function renderTV(){
   document.getElementById('mosqueName').textContent   =settings.mosqueName   ||'Namoz Vaqtlari';
   document.getElementById('mosqueArabic').textContent =settings.mosqueArabic ||'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيم';
   document.getElementById('cityFooter').textContent   =city.name;
-  document.getElementById('methodFooter').textContent =(METHODS[settings.method]||METHODS.Karachi).name;
+  document.getElementById('methodFooter').textContent =`${(METHODS[settings.method]||METHODS.Karachi).name.split(' (')[0]} usuli`;
+  document.getElementById('asrFooter').textContent    =`Asr: ${(ASR_METHODS[settings.asrMethod]||ASR_METHODS.Hanafi).name}`;
 
   // Hero
   document.getElementById('heroLabel').textContent = st.next.tomorrow ? 'Keyingi namoz · ertaga' : 'Keyingi namoz';

@@ -20,7 +20,7 @@ const CITIES = {
   Bukhara:     { lat: 39.7681, lon: 64.4556, name: "Buxoro"     },
   Namangan:    { lat: 41.0011, lon: 71.6725, name: "Namangan"   },
   Andijan:     { lat: 40.7833, lon: 72.3444, name: "Andijon"    },
-  Fergana:     { lat: 40.3864, lon: 71.7864, name: "Farg'ona"   },
+  Fergana:     { lat: 40.3864, lon: 71.7864, name: "Fargʻona"   },
   Nukus:       { lat: 42.4593, lon: 59.6139, name: "Nukus"      },
   Qarshi:      { lat: 38.8600, lon: 65.7897, name: "Qarshi"     },
   Termez:      { lat: 37.2242, lon: 67.2783, name: "Termiz"     },
@@ -34,7 +34,7 @@ const METHODS = {
   MWL:     { fajr: 18, isha: 17,   name: "Muslim World League" },
   ISNA:    { fajr: 15, isha: 15,   name: "ISNA (Amerika)"      },
   Egypt:   { fajr: 19.5, isha: 17.5, name: "Misr (Qohira)"    },
-  Karachi: { fajr: 18, isha: 18,   name: "Karachi (O'rta Osiyo)" },
+  Karachi: { fajr: 18, isha: 18,   name: "Karachi (Oʻrta Osiyo)" },
   MeccaUm: { fajr: 18.5, isha: 90, name: "Umm al-Qura (Makka)" }, // 90 min
 };
 
@@ -186,9 +186,9 @@ function initStars() {
 // ──────────────────────────────────────────────
 function toHijri(date, adj){
   adj = adj || 0;
-  const HIJRI_MONTHS=['Muharram','Safar','Rabi ul-Avval','Rabi ul-Oxir',
-    'Jumad ul-Avval','Jumad ul-Oxir','Rajab','Sha\'bon','Ramazon','Shavvol',
-    'Zul-Qa\'da','Zul-Hijja'];
+  const HIJRI_MONTHS=['Muharram','Safar','Rabiul avval','Rabiul oxir',
+    'Jumodul avval','Jumodul oxir','Rajab','Shaʼbon','Ramazon','Shavvol',
+    'Zulqaʼda','Zulhijja'];
   const d2 = new Date(date); d2.setDate(d2.getDate() + adj);
   const y=d2.getFullYear(),m=d2.getMonth()+1,d=d2.getDate();
   const a=Math.floor((14-m)/12);

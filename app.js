@@ -100,7 +100,7 @@ function tickCountdown(settings, city) {
 
 function renderDualLists(settings, city, now) {
   const days   = ['Yak','Du','Se','Cho','Pay','Ju','Sha'];
-  const months = ['Yan','Fev','Mar','Apr','May','Iyu','Iyu','Avg','Sen','Okt','Noy','Dek'];
+  const months = ['Yan','Fev','Mar','Apr','May','Iyn','Iyl','Avg','Sen','Okt','Noy','Dek'];
 
   const tom = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
 
