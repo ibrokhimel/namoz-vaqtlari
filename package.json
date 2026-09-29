@@ -1,7 +1,7 @@
 {
   "name": "namoz-vaqtlari",
   "private": true,
-  "version": "2.5.0",
+  "version": "2.5.1",
   "description": "Prayer times for Uzbek mosques: TV display (Google TV) and phone pages",
   "type": "module",
   "scripts": {

@@ -76,6 +76,17 @@ export default function SettingsPanel({ settings, onChange }) {
 
   const close = () => { setOpen(false); setEditing(false); setConfirmReset(false); setPending(null); setSavedRow(-1); };
 
+  const handleBack = () => {
+    const s = S.current;
+    if (!s.open) return false;
+    if (s.editing) endEdit(true);
+    else {
+      if (s.pending) save(next => { next[s.pending.key] = s.pending.value; });
+      close();
+    }
+    return true;
+  };
+
   const activate = () => {
     const { focus: f, pending: pend, confirmReset: cr } = S.current;
     const row = ROWS[f];
@@ -122,7 +133,7 @@ export default function SettingsPanel({ settings, onChange }) {
       }
       if (s.editing) {
         if (e.key === 'Enter') { e.preventDefault(); endEdit(true); }
-        else if (e.key === 'Escape') { e.preventDefault(); endEdit(false); }
+        else if (BACK_KEYS.has(e.key)) { e.preventDefault(); endEdit(true); }
         return;                                   // everything else types into the field
       }
       if (e.repeat && OK_KEYS.has(e.key)) return; // still holding OK from opening
@@ -132,7 +143,7 @@ export default function SettingsPanel({ settings, onChange }) {
       else if (k === 'ArrowRight') change(+1);
       else if (k === 'ArrowLeft') change(-1);
       else if (OK_KEYS.has(k)) activate();
-      else if (BACK_KEYS.has(k)) close();
+      else if (BACK_KEYS.has(k)) handleBack();
       else return;
       e.preventDefault();
     };
@@ -140,7 +151,7 @@ export default function SettingsPanel({ settings, onChange }) {
     document.addEventListener('keydown', down);
     document.addEventListener('keyup', up);
     window.addEventListener('blur', cancelHold);
-    window.tvSettings = { open: () => { setFocus(0); setOpen(true); }, close };   // tests / Android menu bridge
+    window.tvSettings = { open: () => { setFocus(0); setOpen(true); }, close, handleBack };   // tests / Android menu bridge
     return () => {
       document.removeEventListener('keydown', down);
       document.removeEventListener('keyup', up);
@@ -148,15 +159,21 @@ export default function SettingsPanel({ settings, onChange }) {
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // focused row stays in view. Scroll only the list itself: scrollIntoView
-  // would also scroll the overflow:hidden stage towards the off-screen panel.
-  useEffect(() => {
+  const ensureFocusVisible = () => {
     const list = listRef.current, el = list?.children[focus];
     if (!open || !el) return;
-    if (el.offsetTop < list.scrollTop) list.scrollTop = el.offsetTop;
-    else if (el.offsetTop + el.offsetHeight > list.scrollTop + list.clientHeight)
-      list.scrollTop = el.offsetTop + el.offsetHeight - list.clientHeight;
-  }, [focus, open]);
+    const topPad = 12;
+    const bottomPad = 12;
+    const top = el.offsetTop - topPad;
+    const bottom = el.offsetTop + el.offsetHeight + bottomPad;
+    if (top < list.scrollTop) list.scrollTop = Math.max(0, top);
+    else if (bottom > list.scrollTop + list.clientHeight)
+      list.scrollTop = bottom - list.clientHeight;
+  };
+
+  // focused row stays in view. Scroll only the list itself: scrollIntoView
+  // would also scroll the overflow:hidden stage towards the off-screen panel.
+  useEffect(ensureFocusVisible, [focus, open]);
   useEffect(() => {
     const input = inputRef.current;
     if (editing && input) { input.focus(); input.setSelectionRange(input.value.length, input.value.length); }
