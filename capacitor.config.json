@@ -4,7 +4,7 @@
   "webDir": "dist",
   "server": {
     "androidScheme": "https",
-    "appStartPath": "tv.html"
+    "appStartPath": "/tv.html"
   },
   "android": {
     "backgroundColor": "#050911"

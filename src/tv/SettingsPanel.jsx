@@ -17,8 +17,6 @@ const OK_KEYS = new Set(['Enter', 'NumpadEnter', 'Select']);
 const BACK_KEYS = new Set(['Escape', 'Backspace', 'GoBack', 'BrowserBack']);
 
 const ROWS = [
-  { type: 'text',   key: 'mosqueName',   label: 'Masjid nomi',  max: 60 },
-  { type: 'text',   key: 'mosqueArabic', label: 'Arabcha nomi', max: 40, rtl: true },
   { type: 'choice', key: 'city',      label: 'Shahar',          options: Object.keys(CITIES),      fmt: k => CITIES[k].name },
   { type: 'choice', key: 'method',    label: 'Hisoblash usuli', options: Object.keys(METHODS),     fmt: k => METHODS[k].name },
   { type: 'choice', key: 'asrMethod', label: 'Asr mazhabi',     options: Object.keys(ASR_METHODS), fmt: k => ASR_METHODS[k].name },
@@ -26,6 +24,8 @@ const ROWS = [
   { type: 'choice', key: 'weatherBg', label: 'Ob-havo foni', options: [true, false], fmt: k => (k ? 'Yoqilgan' : 'Oʻchirilgan') },
   ...PRAYERS_TV.map(p => ({ type: 'adj', key: p.key, label: `${p.nameUz}: tuzatish`, min: -30, max: 30, unit: 'daq' })),
   { type: 'num',    key: 'hijriAdj', label: 'Hijriy sana', min: -3, max: 3, unit: 'kun' },
+  { type: 'text',   key: 'mosqueName',   label: 'Masjid nomi',  max: 60 },
+  { type: 'text',   key: 'mosqueArabic', label: 'Arabcha nomi', max: 40, rtl: true },
   { type: 'action', id: 'update', label: 'Yangilanishni tekshirish' },
   { type: 'action', id: 'reset', label: 'Standart sozlamalarga qaytarish' },
   { type: 'action', id: 'close', label: 'Yopish' },
